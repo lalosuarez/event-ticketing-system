@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-app-deployment
+  labels:
+    app: orders-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-app
+  template:
+    metadata:
+      labels:
+        app: orders-app
+    spec:
+      containers:
+        - name: orders-app
+          image: event-ticketing/orders
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xmx512m -XX:MaxMetaspaceSize=256m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-app-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8081
+      targetPort: 8081
+      protocol: TCP
+  selector:
+    app: orders-app

@@ -1,0 +1,24 @@
+apiVersion: skaffold/v4beta14
+kind: Config
+build:
+  artifacts:
+    # Must match deployment.yaml's image name and must match your pom.xml <artifactId> EXACTLY
+    - image: event-ticketing/orders
+      # Tells Skaffold to switch into the /orders folder BEFORE running Maven
+      context: orders
+      jib:
+        args:
+          - -DskipTests
+        type: maven
+  local:
+    push: false
+    concurrency: 1
+manifests:
+  rawYaml:
+    - ./infra/k8s/*
+deploy:
+  kubectl:
+    flags:
+      # FORCE SKAFFOLD TO DEPLOY TO DEFAULT NAMESPACE LOCAL_ONLY
+      global:
+        - --namespace=default

@@ -1,0 +1,25 @@
+scalar DateTime
+
+type Query {
+    # Uses cursor-based pagination
+    orders(first: Int, after: String, last: Int, before: String): OrderResponseConnection
+    order(id: ID!): OrderResponse!
+}
+
+type Mutation {
+    create(orderRequest: OrderRequest!): OrderResponse!
+    cancel(id: ID!): OrderResponse!
+}
+
+input OrderRequest {
+    userId: ID!
+    ticketId: ID!
+}
+
+type OrderResponse {
+    id: ID!
+    userId: ID!
+    ticketId: ID!
+    status: String!
+    expiresAt: DateTime!
+}
