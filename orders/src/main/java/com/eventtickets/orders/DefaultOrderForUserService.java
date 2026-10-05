@@ -32,12 +32,16 @@ class DefaultOrderForUserService implements OrderForUserService {
         logger.debug("Creating Order {}", createOrderRequest);
         var ticketId = UUID.fromString(createOrderRequest.ticketId());
         this.ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new InvalidTicketException("Invalid ticket " + ticketId));
+                .orElseThrow(() -> {
+                    logger.error("Ticket {} not found", ticketId);
+                    return new InvalidTicketException("Invalid ticket " + ticketId);
+                });
         // Checking if ticket is not reserved.
         var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketId,
                 List.of(OrderStatus.ACCEPTED, OrderStatus.PENDING));
         if (orderWithTicket != null) {
-            throw new InvalidTicketException("Invalid ticket " + ticketId);
+            logger.error("Ticket id {} already reserved", ticketId);
+            throw new InvalidTicketException("Invalid ticket");
         }
         return toOrderResponse(this.orderForUserRepository.save(toOrderEntity(createOrderRequest)));
     }
@@ -53,19 +57,20 @@ class DefaultOrderForUserService implements OrderForUserService {
     public OrderResponse getByIdForUser(String id, String userId) {
         var entity = this.orderForUserRepository.findOneByIdAndUserId(UUID.fromString(id), userId);
         if (entity == null) {
-            throw new OrderNotFoundException("Order " + id + " not found");
+            logger.error("Order id {} not found", id);
+            throw new OrderNotFoundException("Order not found");
         }
         return toOrderResponse(entity);
     }
 
     @Override
     public OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest) {
-        // TODO: Add validations like status is PENDING.
         var entity = this.orderForUserRepository.findOneByIdAndUserId(
                 UUID.fromString(cancelOrderRequest.orderId()),
                 cancelOrderRequest.userId());
         if (entity == null || OrderStatus.CANCELLED.equals(entity.status())) {
-            throw new OrderNotFoundException("Invalid order " + cancelOrderRequest.orderId());
+            logger.error("Order id {} already cancelled or not found", cancelOrderRequest.orderId());
+            throw new InvalidOrderException("Invalid order");
         }
         return toOrderResponse(
                 this.orderForUserRepository.save(entity.withStatusAndUser(OrderStatus.CANCELLED,
@@ -74,8 +79,8 @@ class DefaultOrderForUserService implements OrderForUserService {
     }
 
     private OrderResponse toOrderResponse(OrderEntity orderEntity) {
-        return new OrderResponse(orderEntity.id().toString(), orderEntity.userId(), orderEntity.ticketId().toString(),
-                orderEntity.status().name(), orderEntity.expiresAt());
+        return new OrderResponse(orderEntity.id().toString(), orderEntity.userId(),
+                orderEntity.ticketId().getId().toString(), orderEntity.status().name(), orderEntity.expiresAt());
     }
 
     private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest) {

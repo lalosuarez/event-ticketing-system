@@ -22,6 +22,7 @@ public interface OrderForUserRepository extends ListCrudRepository<OrderEntity, 
             SELECT o.id FROM ordering.order o
             WHERE o.ticket_id = :ticketId
             AND o.status IN (:statuses)
+            LIMIT 1
             """)
     UUID findByTicketIdAndStatuses(UUID ticketId, List<OrderStatus> statuses);
 }

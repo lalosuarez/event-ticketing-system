@@ -20,4 +20,13 @@ public record TicketEntity(
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
+    public TicketEntity(String title, String price, String createdBy, String updatedBy) {
+        this(null, title, price, null, createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
+    }
+
+    // For unit tests
+    public TicketEntity withId(UUID id) {
+        return new TicketEntity(id, this.title, this.price, this.version,
+                this.createdBy, this.createdAt, this.updatedBy, this.updatedAt);
+    }
 }

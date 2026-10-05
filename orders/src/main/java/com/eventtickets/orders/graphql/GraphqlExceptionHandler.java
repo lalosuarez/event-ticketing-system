@@ -1,9 +1,12 @@
 package com.eventtickets.orders.graphql;
 
+import com.eventtickets.orders.InvalidOrderException;
 import com.eventtickets.orders.OrderNotFoundException;
 import com.eventtickets.orders.InvalidTicketException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
+import graphql.execution.ResultPath;
+import graphql.language.SourceLocation;
 import graphql.schema.DataFetchingEnvironment;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -21,37 +24,38 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
     protected GraphQLError resolveToSingleError(@NonNull Throwable ex, @NonNull DataFetchingEnvironment env) {
         if (ex instanceof OrderNotFoundException) {
             logger.error("Order not found", ex);
-
-            return GraphqlErrorBuilder.newError()
-                    .errorType(ErrorType.NOT_FOUND)
-                    .message(ex.getMessage())
-                    .path(env.getExecutionStepInfo().getPath()) // Adds the field path
-                    .location(env.getMergedField().getSingleField().getSourceLocation()) // Sets the location
-                    .build();
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.NOT_FOUND);
         }
-        if (ex instanceof InvalidTicketException) {
-            logger.error("Invalid ticket", ex);
-
-            return GraphqlErrorBuilder.newError()
-                    .errorType(ErrorType.BAD_REQUEST)
-                    .message(ex.getMessage())
-                    .path(env.getExecutionStepInfo().getPath()) // Adds the field path
-                    .location(env.getMergedField().getSingleField().getSourceLocation()) // Sets the location
-                    .build();
+        if (ex instanceof InvalidOrderException || ex instanceof InvalidTicketException) {
+            logger.error("Invalid order", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
         }
         if (ex instanceof DataIntegrityViolationException) {
             logger.error("Data integrity violation", ex);
-
-            return GraphqlErrorBuilder.newError()
-                    .errorType(ErrorType.INTERNAL_ERROR)
-                    .message("Data Integrity Violation")
-                    .path(env.getExecutionStepInfo().getPath()) // Adds the field path
-                    .location(env.getMergedField().getSingleField().getSourceLocation()) // Sets the location
-                    .build();
+            return toGraphQLError("Data Integrity Violation", getResultPath(env), getSourceLocation(env),
+                    ErrorType.INTERNAL_ERROR);
         }
 
-        logger.error("Error occured", ex);
+        logger.error("Unknown Error", ex);
         return null; // Defer to other resolvers or default handling
+    }
+
+    private GraphQLError toGraphQLError(String message, ResultPath resultPath, SourceLocation sourceLocation,
+                                        ErrorType errorType) {
+        return GraphqlErrorBuilder.newError()
+                .errorType(errorType)
+                .message(message)
+                .path(resultPath) // Adds the field path
+                .location(sourceLocation) // Sets the location
+                .build();
+    }
+
+    private ResultPath getResultPath(DataFetchingEnvironment env) {
+        return env.getExecutionStepInfo().getPath();
+    }
+
+    private SourceLocation getSourceLocation(DataFetchingEnvironment env) {
+        return env.getMergedField().getSingleField().getSourceLocation();
     }
 }
 

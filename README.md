@@ -17,7 +17,6 @@ Create .env file under `infra` directory with the following values:
 ```text
 DB_USERNAME
 DB_PASSWORD
-DB_NAME
 RABBITMQ_USERNAME
 RABBITMQ_PASSWORD
 KEYCLOAK_USERNAME

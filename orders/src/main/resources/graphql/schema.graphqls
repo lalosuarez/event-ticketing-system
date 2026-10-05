@@ -1,21 +1,26 @@
 scalar DateTime
 
 type Query {
-    # Uses cursor-based pagination
+    # Get a list of user orders with cursor-based pagination
     orders(first: Int, after: String, last: Int, before: String): OrderResponseConnection
+    # Get an user order by id
     order(id: ID!): OrderResponse!
 }
 
 type Mutation {
+    # Create an user order
     create(createOrderRequest: CreateOrderRequest!): OrderResponse!
+    # Cancel an user order
     cancel(cancelOrderRequest: CancelOrderRequest!): OrderResponse!
 }
 
+# Input values to create an order
 input CreateOrderRequest {
     userId: ID!
     ticketId: ID!
 }
 
+# Input values to cancel an order
 input CancelOrderRequest {
     userId: ID!
     orderId: ID!

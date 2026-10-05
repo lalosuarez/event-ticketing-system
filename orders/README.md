@@ -57,7 +57,29 @@ query MyQuery {
 
 ```
 
-## Create Order
+### Get Order by id
+
+```graphql
+query MyQuery {
+    orders(first: 10) {
+        edges {
+            node {
+                id
+                userId
+                ticketId
+            }
+        }
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+        }
+    }
+}
+```
+
+### Create Order
 
 ```graphql
 mutation MyMutation {
@@ -69,7 +91,7 @@ mutation MyMutation {
 }
 ```
 
-## Cancel Order
+### Cancel Order
 
 ```graphql
 mutation MyMutation {

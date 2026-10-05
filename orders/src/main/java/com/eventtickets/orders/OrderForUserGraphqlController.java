@@ -2,6 +2,8 @@ package com.eventtickets.orders;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.OffsetScrollPosition;
@@ -58,7 +60,10 @@ class OrderForUserGraphqlController {
     }
 
     @QueryMapping
-    OrderResponse order(@Argument String id) {
+    OrderResponse order(@Argument
+                        @NotNull(message = "{order.get.orderId.NotNull.message}")
+                        @Size(max = 36, min = 36, message = "{order.get.orderId.Size.message}")
+                        String id) {
         var userId = "userId-1"; // TODO: Fix user id when implementing security
         logger.info("Received request to query order {} for user {}", id, userId);
         return this.orderForUserService.getByIdForUser(id, userId);
