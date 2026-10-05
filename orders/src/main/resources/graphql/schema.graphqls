@@ -7,13 +7,18 @@ type Query {
 }
 
 type Mutation {
-    create(orderRequest: OrderRequest!): OrderResponse!
-    cancel(id: ID!): OrderResponse!
+    create(createOrderRequest: CreateOrderRequest!): OrderResponse!
+    cancel(cancelOrderRequest: CancelOrderRequest!): OrderResponse!
 }
 
-input OrderRequest {
+input CreateOrderRequest {
     userId: ID!
     ticketId: ID!
+}
+
+input CancelOrderRequest {
+    userId: ID!
+    orderId: ID!
 }
 
 type OrderResponse {

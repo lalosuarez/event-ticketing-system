@@ -1,6 +1,7 @@
 package com.eventtickets.orders.graphql;
 
 import com.eventtickets.orders.OrderNotFoundException;
+import com.eventtickets.orders.InvalidTicketException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.schema.DataFetchingEnvironment;
@@ -19,10 +20,20 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
     @Override
     protected GraphQLError resolveToSingleError(@NonNull Throwable ex, @NonNull DataFetchingEnvironment env) {
         if (ex instanceof OrderNotFoundException) {
-            logger.error("order not found", ex);
+            logger.error("Order not found", ex);
 
             return GraphqlErrorBuilder.newError()
                     .errorType(ErrorType.NOT_FOUND)
+                    .message(ex.getMessage())
+                    .path(env.getExecutionStepInfo().getPath()) // Adds the field path
+                    .location(env.getMergedField().getSingleField().getSourceLocation()) // Sets the location
+                    .build();
+        }
+        if (ex instanceof InvalidTicketException) {
+            logger.error("Invalid ticket", ex);
+
+            return GraphqlErrorBuilder.newError()
+                    .errorType(ErrorType.BAD_REQUEST)
                     .message(ex.getMessage())
                     .path(env.getExecutionStepInfo().getPath()) // Adds the field path
                     .location(env.getMergedField().getSingleField().getSourceLocation()) // Sets the location

@@ -3,6 +3,7 @@ package com.eventtickets.orders;
 import com.eventtickets.orders.jdbc.OrderEntity;
 import com.eventtickets.orders.jdbc.OrderForUserRepository;
 import com.eventtickets.orders.jdbc.OrderStatus;
+import com.eventtickets.orders.jdbc.TicketEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Window;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -39,10 +41,11 @@ class DefaultOrderForUserServiceTest {
         @DisplayName("Should successfully map request and save new order as PENDING")
         void createForUser_ValidRequest_ReturnsOrderResponse() {
             // Arrange
-            OrderRequest request = new OrderRequest("user-123", "ticket-789");
+            CreateOrderRequest request = new CreateOrderRequest("user-123", "01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             UUID expectedId = UUID.randomUUID();
+            AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e"));
             OrderEntity mockSavedEntity = new OrderEntity(
-                    "user-123", "ticket-789", OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15),
+                    "user-123", ticketId, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15),
                     "user-123", "user-123")
                     .withId(expectedId);
 
@@ -67,11 +70,13 @@ class DefaultOrderForUserServiceTest {
         @DisplayName("Should return a structured Window wrapped with offset ScrollPositions")
         void getAllForUser_ValidParameters_ReturnsWindowOfResponses() {
             // Arrange
+            AggregateReference<TicketEntity, UUID> ticketId1 = AggregateReference.to(UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e"));
+            AggregateReference<TicketEntity, UUID> ticketId2 = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
-            OrderEntity entity1 = new OrderEntity(userId, "t-1", OrderStatus.PENDING, OffsetDateTime.now(),
+            OrderEntity entity1 = new OrderEntity(userId, ticketId1, OrderStatus.PENDING, OffsetDateTime.now(),
                     userId, userId)
                     .withId(UUID.randomUUID());
-            OrderEntity entity2 = new OrderEntity(userId, "t-2", OrderStatus.PENDING, OffsetDateTime.now(),
+            OrderEntity entity2 = new OrderEntity(userId, ticketId2, OrderStatus.PENDING, OffsetDateTime.now(),
                     userId, userId)
                     .withId(UUID.randomUUID());
 
@@ -82,7 +87,7 @@ class DefaultOrderForUserServiceTest {
 
             // Assert
             assertThat(resultWindow).hasSize(2);
-            assertThat(resultWindow.getContent().getFirst().ticketId()).isEqualTo("t-1");
+            assertThat(resultWindow.getContent().getFirst().ticketId()).isEqualTo("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             verify(orderForUserRepository).findAllByUserId(userId, 2, 0L);
         }
 
@@ -91,8 +96,9 @@ class DefaultOrderForUserServiceTest {
         void getByIdForUser_ExistingOrder_ReturnsOrderResponse() {
             // Arrange
             UUID orderId = UUID.randomUUID();
+            AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
-            OrderEntity mockEntity = new OrderEntity(userId, "ticket-1", OrderStatus.PENDING,
+            OrderEntity mockEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING,
                     OffsetDateTime.now(), userId, userId)
                     .withId(orderId);
 
@@ -130,12 +136,13 @@ class DefaultOrderForUserServiceTest {
         void cancelForUser_ExistingOrder_ReturnsCancelledOrderResponse() {
             // Arrange
             UUID orderId = UUID.randomUUID();
+            AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
 
-            OrderEntity existingEntity = new OrderEntity(userId, "ticket-1", OrderStatus.PENDING,
+            OrderEntity existingEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING,
                     OffsetDateTime.now(), userId, userId)
                     .withId(orderId);
-            OrderEntity cancelledEntity = new OrderEntity(userId, "ticket-1", OrderStatus.CANCELLED,
+            OrderEntity cancelledEntity = new OrderEntity(userId, ticketId, OrderStatus.CANCELLED,
                     OffsetDateTime.now(), userId, userId)
                     .withId(orderId);
 
@@ -144,7 +151,7 @@ class DefaultOrderForUserServiceTest {
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(cancelledEntity);
 
             // Act
-            OrderResponse response = orderService.cancelForUser(orderId.toString(), userId);
+            OrderResponse response = orderService.cancelForUser(new CancelOrderRequest(userId, orderId.toString()));
 
             // Assert
             assertThat(response).isNotNull();

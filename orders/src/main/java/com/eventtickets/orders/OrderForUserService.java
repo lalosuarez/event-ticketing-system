@@ -7,11 +7,11 @@ import org.springframework.data.domain.Window;
  */
 interface OrderForUserService {
 
-    OrderResponse createForUser(OrderRequest orderRequest);
+    OrderResponse createForUser(CreateOrderRequest createOrderRequest);
 
     Window<OrderResponse> getAllForUser(String userId, Integer limit, Long offset);
 
     OrderResponse getByIdForUser(String id, String userId);
 
-    OrderResponse cancelForUser(String id, String userId);
+    OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest);
 }

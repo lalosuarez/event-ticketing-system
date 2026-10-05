@@ -1,6 +1,8 @@
 package com.eventtickets.orders.jdbc;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.OffsetDateTime;
@@ -11,28 +13,30 @@ public record OrderEntity(
         @Id
         UUID id,
         String userId,
-        String ticketId,
+        AggregateReference<TicketEntity, UUID> ticketId,
         OrderStatus status,
         OffsetDateTime expiresAt,
+        @Version
+        Integer version,
         String createdBy,
         OffsetDateTime createdAt,
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
-    public OrderEntity(String userId, String ticketId, OrderStatus status, OffsetDateTime expiresAt,
-                       String createdBy, String updatedBy) {
-        this(null, userId, ticketId, status, expiresAt,
+    public OrderEntity(String userId, AggregateReference<TicketEntity, UUID> ticketId, OrderStatus status,
+                       OffsetDateTime expiresAt, String createdBy, String updatedBy) {
+        this(null, userId, ticketId, status, expiresAt, null,
                 createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
     }
 
     public OrderEntity withStatusAndUser(OrderStatus status, String userId) {
-        return new OrderEntity(this.id, this.userId, this.ticketId, status, this.expiresAt,
+        return new OrderEntity(this.id, this.userId, this.ticketId, status, this.expiresAt, this.version,
                 this.createdBy, this.createdAt, userId, OffsetDateTime.now());
     }
 
     // For unit tests
     public OrderEntity withId(UUID id) {
-        return new OrderEntity(id, this.userId, this.ticketId, status, this.expiresAt,
+        return new OrderEntity(id, this.userId, this.ticketId, status, this.expiresAt, this.version,
                 this.createdBy, this.createdAt, userId, OffsetDateTime.now());
     }
 }

@@ -1,6 +1,7 @@
 package com.eventtickets.orders;
 
 
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.OffsetScrollPosition;
@@ -26,17 +27,17 @@ class OrderForUserGraphqlController {
     }
 
     @MutationMapping
-    OrderResponse create(@Argument OrderRequest orderRequest) {
+    OrderResponse create(@Argument @Valid CreateOrderRequest createOrderRequest) {
         // TODO: Validate userId in the req is the same as yhe user id in the security context when implementing security
-        logger.info("Received request to create order {} for user{}", orderRequest, orderRequest.userId());
-        return this.orderForUserService.createForUser(orderRequest);
+        logger.info("Received request to create order {} for user {}", createOrderRequest, createOrderRequest.userId());
+        return this.orderForUserService.createForUser(createOrderRequest);
     }
 
     @MutationMapping
-    OrderResponse cancel(@Argument String id) {
-        var userId = "userId-1"; // TODO: Fix user id when implementing security
-        logger.info("Received request to cancel order {} for user {}", id, userId);
-        return this.orderForUserService.cancelForUser(id, userId);
+    OrderResponse cancel(@Argument @Valid CancelOrderRequest cancelOrderRequest) {
+        // TODO: Validate userId in the req is the same as yhe user id in the security context when implementing security
+        logger.info("Received request to cancel order {} for user {}", cancelOrderRequest, cancelOrderRequest.userId());
+        return this.orderForUserService.cancelForUser(cancelOrderRequest);
     }
 
     /**
