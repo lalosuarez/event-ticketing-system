@@ -28,7 +28,7 @@ class OrderEventProducerConfiguration {
     }
 
     @Bean
-    OrderCancelledProducer orderCancelleddEventProducer(
+    OrderCancelledProducer orderCancelledEventProducer(
             @Qualifier("kafkaOrderCancelledEventProducer") EventProducer<Event> eventProducer) {
         return new OrderCancelledProducer(eventProducer);
     }

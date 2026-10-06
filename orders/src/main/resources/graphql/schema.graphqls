@@ -8,9 +8,9 @@ type Query {
 }
 
 type Mutation {
-    # Create an user order
+    # For user to create an order
     create(createOrderRequest: CreateOrderRequest!): OrderResponse!
-    # Cancel an user order
+    # For user to cancel an order
     cancel(cancelOrderRequest: CancelOrderRequest!): OrderResponse!
 }
 

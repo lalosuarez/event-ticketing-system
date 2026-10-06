@@ -26,6 +26,12 @@ GATEWAY_SECRET
 
 ## Start Docker for local env
 
+Set permissions for script that creates the different databases:
+
+```shell
+chmod +x infra/init-databases.sh
+```
+
 Start:
 
 ```shell

@@ -1,0 +1,34 @@
+scalar BigDecimal
+
+type Query {
+    # Get an user tickt by id
+    ticket(id: ID!): TicketResponse!
+}
+
+type Mutation {
+    # For user to create an event ticket
+    create(createTicketRequest: CreateTicketRequest!): TicketResponse!
+    # For user to update an event ticket
+    update(updateTicketRequest: UpdateTicketRequest!): TicketResponse!
+}
+
+# Input values to create a ticket
+input CreateTicketRequest {
+    title: String!
+    price: BigDecimal!
+    userId: ID!
+}
+
+input UpdateTicketRequest {
+    id: ID!
+    title: String!
+    price: BigDecimal!
+    userId: ID!
+}
+
+type TicketResponse {
+    id: ID!
+    title: String!
+    price: String!
+    userId: ID!
+}

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Controller;
 
 /**
  * This controller is user based, meaning that all order operations are tied to a specific user
- * for example: get all orders for a use, get order by id for a user, cancel order by id for a user, etc.
+ * for example: get all orders for a user, get order by id for a user, cancel order by id for a user, etc.
  */
 @Controller
 class OrderForUserGraphqlController {

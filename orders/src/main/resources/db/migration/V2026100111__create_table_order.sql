@@ -1,4 +1,3 @@
--- Follow a schema per service
 CREATE SCHEMA IF NOT EXISTS ordering;
 
 CREATE TABLE ordering.order
