@@ -61,20 +61,11 @@ query MyQuery {
 
 ```graphql
 query MyQuery {
-    orders(first: 10) {
-        edges {
-            node {
-                id
-                userId
-                ticketId
-            }
-        }
-        pageInfo {
-            hasNextPage
-            hasPreviousPage
-            startCursor
-            endCursor
-        }
+    order(id: "01a10d6f-0b16-7579-8450-b87b73824335") {
+        ticketId
+        userId
+        expiresAt
+        status
     }
 }
 ```

@@ -1,4 +1,4 @@
-package com.eventtickets.orders;
+package com.eventtickets.orders.exception;
 
 public class InvalidOrderException extends RuntimeException {
 

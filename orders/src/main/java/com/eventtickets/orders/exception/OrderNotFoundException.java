@@ -1,8 +1,8 @@
-package com.eventtickets.orders;
+package com.eventtickets.orders.exception;
 
 public class OrderNotFoundException extends RuntimeException {
 
-    OrderNotFoundException(String message) {
+    public OrderNotFoundException(String message) {
         super(message);
     }
 }

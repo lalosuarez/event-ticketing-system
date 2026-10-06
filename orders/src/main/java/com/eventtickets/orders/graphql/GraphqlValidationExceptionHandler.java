@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class GraphqlValidationExceptionHandler {
+class GraphqlValidationExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GraphqlValidationExceptionHandler.class);
 
     @GraphQlExceptionHandler(ConstraintViolationException.class)
-    public List<GraphQLError> handleValidationException(
+    List<GraphQLError> handleValidationException(
             ConstraintViolationException ex, DataFetchingEnvironment env) {
         logger.error("Data constraint violation", ex);
 

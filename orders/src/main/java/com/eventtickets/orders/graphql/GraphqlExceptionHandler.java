@@ -1,8 +1,9 @@
 package com.eventtickets.orders.graphql;
 
-import com.eventtickets.orders.InvalidOrderException;
-import com.eventtickets.orders.OrderNotFoundException;
-import com.eventtickets.orders.InvalidTicketException;
+import com.eventtickets.orders.exception.InvalidOrderException;
+import com.eventtickets.orders.exception.OrderException;
+import com.eventtickets.orders.exception.OrderNotFoundException;
+import com.eventtickets.orders.exception.InvalidTicketException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.execution.ResultPath;
@@ -30,13 +31,17 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
             logger.error("Invalid order", ex);
             return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
         }
+        if (ex instanceof OrderException) {
+            logger.error("Order error", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.INTERNAL_ERROR);
+        }
         if (ex instanceof DataIntegrityViolationException) {
             logger.error("Data integrity violation", ex);
             return toGraphQLError("Data Integrity Violation", getResultPath(env), getSourceLocation(env),
                     ErrorType.INTERNAL_ERROR);
         }
 
-        logger.error("Unknown Error", ex);
+        logger.error("Unknown error", ex);
         return null; // Defer to other resolvers or default handling
     }
 

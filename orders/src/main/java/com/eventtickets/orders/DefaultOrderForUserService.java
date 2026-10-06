@@ -1,15 +1,18 @@
 package com.eventtickets.orders;
 
-import com.eventtickets.orders.jdbc.OrderEntity;
-import com.eventtickets.orders.jdbc.OrderForUserRepository;
-import com.eventtickets.orders.jdbc.OrderStatus;
-import com.eventtickets.orders.jdbc.TicketRepository;
+import com.eventtickets.orders.exception.InvalidOrderException;
+import com.eventtickets.orders.exception.InvalidTicketException;
+import com.eventtickets.orders.exception.OrderException;
+import com.eventtickets.orders.exception.OrderNotFoundException;
+import com.eventtickets.orders.jdbc.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -20,18 +23,25 @@ class DefaultOrderForUserService implements OrderForUserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultOrderForUserService.class);
     private final OrderForUserRepository orderForUserRepository;
     private final TicketRepository ticketRepository;
+    private final OrderCreatedProducer orderCreatedProducer;
+    private final OrderCancelledProducer orderCancelledProducer;
 
     DefaultOrderForUserService(OrderForUserRepository orderForUserRepository,
-                               TicketRepository ticketRepository) {
+                               TicketRepository ticketRepository,
+                               OrderCreatedProducer orderCreatedProducer,
+                               OrderCancelledProducer orderCancelledProducer) {
         this.orderForUserRepository = orderForUserRepository;
         this.ticketRepository = ticketRepository;
+        this.orderCreatedProducer = orderCreatedProducer;
+        this.orderCancelledProducer = orderCancelledProducer;
     }
 
     @Override
+    @Transactional
     public OrderResponse createForUser(CreateOrderRequest createOrderRequest) {
         logger.debug("Creating Order {}", createOrderRequest);
         var ticketId = UUID.fromString(createOrderRequest.ticketId());
-        this.ticketRepository.findById(ticketId)
+        var ticketEntity = this.ticketRepository.findById(ticketId)
                 .orElseThrow(() -> {
                     logger.error("Ticket {} not found", ticketId);
                     return new InvalidTicketException("Invalid ticket " + ticketId);
@@ -43,7 +53,14 @@ class DefaultOrderForUserService implements OrderForUserService {
             logger.error("Ticket id {} already reserved", ticketId);
             throw new InvalidTicketException("Invalid ticket");
         }
-        return toOrderResponse(this.orderForUserRepository.save(toOrderEntity(createOrderRequest)));
+        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest));
+        try {
+            this.orderCreatedProducer.send(toOrderCreatedEvent(orderEntity, ticketEntity));
+        } catch (KafkaException ex) {
+            logger.error("Could not send order created event", ex);
+            throw new OrderException("Could not create order, try again later");
+        }
+        return toOrderResponse(orderEntity);
     }
 
     @Override
@@ -64,6 +81,7 @@ class DefaultOrderForUserService implements OrderForUserService {
     }
 
     @Override
+    @Transactional
     public OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest) {
         var entity = this.orderForUserRepository.findOneByIdAndUserId(
                 UUID.fromString(cancelOrderRequest.orderId()),
@@ -72,10 +90,16 @@ class DefaultOrderForUserService implements OrderForUserService {
             logger.error("Order id {} already cancelled or not found", cancelOrderRequest.orderId());
             throw new InvalidOrderException("Invalid order");
         }
-        return toOrderResponse(
-                this.orderForUserRepository.save(entity.withStatusAndUser(OrderStatus.CANCELLED,
-                        cancelOrderRequest.userId()))
-        );
+        var orderEntity = this.orderForUserRepository.save(
+                entity.withStatusAndUser(OrderStatus.CANCELLED, cancelOrderRequest.userId()));
+        try {
+            this.orderCancelledProducer.send(toOrderCancelledEvent(orderEntity));
+        } catch (KafkaException ex) {
+            logger.error("Could not send order cancelled event", ex);
+            throw new OrderException("Could not cancel order, try again later");
+        }
+
+        return toOrderResponse(orderEntity);
     }
 
     private OrderResponse toOrderResponse(OrderEntity orderEntity) {
@@ -95,5 +119,20 @@ class DefaultOrderForUserService implements OrderForUserService {
                 createOrderRequest.userId(),
                 createOrderRequest.userId()
         );
+    }
+
+    private OrderCreatedEvent toOrderCreatedEvent(OrderEntity orderEntity, TicketEntity ticketEntity) {
+        return new OrderCreatedEvent(
+                orderEntity.id(),
+                orderEntity.userId(),
+                ticketEntity.id(),
+                ticketEntity.price(),
+                orderEntity.status(),
+                orderEntity.expiresAt()
+        );
+    }
+
+    private OrderCancelledEvent toOrderCancelledEvent(OrderEntity orderEntity) {
+        return new OrderCancelledEvent(orderEntity.id(), orderEntity.ticketId().getId());
     }
 }

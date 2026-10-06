@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public record TicketEntity(
         @Id
         UUID id,
         String title,
-        String price,
+        BigDecimal price,
         @Version
         Integer version,
         String createdBy,
@@ -20,7 +21,7 @@ public record TicketEntity(
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
-    public TicketEntity(String title, String price, String createdBy, String updatedBy) {
+    public TicketEntity(String title, BigDecimal price, String createdBy, String updatedBy) {
         this(null, title, price, null, createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
     }
 

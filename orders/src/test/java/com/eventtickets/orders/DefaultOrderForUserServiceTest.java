@@ -1,5 +1,6 @@
 package com.eventtickets.orders;
 
+import com.eventtickets.orders.exception.OrderNotFoundException;
 import com.eventtickets.orders.jdbc.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultOrderForUserServiceTest {
@@ -34,6 +35,12 @@ class DefaultOrderForUserServiceTest {
     @InjectMocks
     private DefaultOrderForUserService orderService;
 
+    @Mock
+    private OrderCreatedProducer orderCreatedProducer;
+
+    @Mock
+    private OrderCancelledProducer orderCancelledProducer;
+
     @Nested
     @DisplayName("Create Order Tests")
     class CreateOrder {
@@ -46,7 +53,7 @@ class DefaultOrderForUserServiceTest {
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
-            var mockTicket = new TicketEntity("test title", "100.00",
+            var mockTicket = new TicketEntity("test title", new BigDecimal("100.00"),
                     "user-123", "user-123")
                     .withId(ticketId);
             var mockSavedEntity = new OrderEntity(
@@ -56,6 +63,7 @@ class DefaultOrderForUserServiceTest {
 
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(mockSavedEntity);
             when(ticketRepository.findById(ticketIdRef.getId())).thenReturn(Optional.of(mockTicket));
+            doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
 
             // Act
             OrderResponse response = orderService.createForUser(request);
@@ -155,6 +163,7 @@ class DefaultOrderForUserServiceTest {
             // Your code uses entity.withStatusAndUser(...), we stub that chain's output
             when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(existingEntity);
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(cancelledEntity);
+            doNothing().when(orderCancelledProducer).send(any(OrderCancelledEvent.class));
 
             // Act
             OrderResponse response = orderService.cancelForUser(new CancelOrderRequest(userId, orderId.toString()));

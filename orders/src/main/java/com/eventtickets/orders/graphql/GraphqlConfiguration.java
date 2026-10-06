@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
 
 @Configuration
-class GraphqlConfig {
+class GraphqlConfiguration {
 
     @Bean
-    public RuntimeWiringConfigurer runtimeWiringConfigurer() {
+    RuntimeWiringConfigurer runtimeWiringConfigurer() {
         return wiringBuilder -> wiringBuilder
                 .scalar(ExtendedScalars.GraphQLLong)
                 .scalar(ExtendedScalars.GraphQLBigDecimal)
