@@ -1,11 +1,11 @@
-package com.eventtickets.tickets;
+package com.eventtickets.orders.tickets;
 
-import com.eventtickets.tickets.messaging.Event;
+import com.eventtickets.orders.messaging.Event;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-record TicketUpdatedEvent(UUID id,
+record TicketCreatedEvent(UUID id,
                           String title,
                           BigDecimal price,
                           String userId,

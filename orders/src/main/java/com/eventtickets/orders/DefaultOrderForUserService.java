@@ -44,14 +44,14 @@ class DefaultOrderForUserService implements OrderForUserService {
         var ticketEntity = this.ticketRepository.findById(ticketId)
                 .orElseThrow(() -> {
                     logger.error("Ticket {} not found", ticketId);
-                    return new InvalidTicketException("Invalid ticket " + ticketId);
+                    return new InvalidTicketException();
                 });
         // Checking if ticket is not reserved.
         var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketId,
                 List.of(OrderStatus.ACCEPTED, OrderStatus.PENDING));
         if (orderWithTicket != null) {
             logger.error("Ticket id {} already reserved", ticketId);
-            throw new InvalidTicketException("Invalid ticket");
+            throw new InvalidTicketException();
         }
         var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest));
         try {

@@ -83,6 +83,7 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
+                ticketEntity.userId(),
                 ticketEntity.version()
         );
     }
@@ -92,6 +93,7 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
+                ticketEntity.userId(),
                 ticketEntity.version()
         );
     }

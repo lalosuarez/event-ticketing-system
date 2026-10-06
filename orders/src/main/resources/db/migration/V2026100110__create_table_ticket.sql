@@ -2,7 +2,7 @@ CREATE SCHEMA IF NOT EXISTS ordering;
 
 CREATE TABLE ordering.ticket
 (
-    id         UUID PRIMARY KEY       DEFAULT uuidv7(),
+    id         UUID PRIMARY KEY,
     title      VARCHAR(100)  NOT NULL,
     price      NUMERIC(9, 2) NOT NULL,
     version    INTEGER       NOT NULL DEFAULT 0,

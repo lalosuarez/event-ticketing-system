@@ -53,9 +53,8 @@ class DefaultOrderForUserServiceTest {
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
-            var mockTicket = new TicketEntity("test title", new BigDecimal("100.00"),
-                    "user-123", "user-123")
-                    .withId(ticketId);
+            var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"),
+                    "user-123");
             var mockSavedEntity = new OrderEntity(
                     "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15),
                     "user-123", "user-123")

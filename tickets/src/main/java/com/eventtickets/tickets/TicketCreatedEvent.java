@@ -8,6 +8,7 @@ import java.util.UUID;
 record TicketCreatedEvent(UUID id,
                           String title,
                           BigDecimal price,
+                          String userId,
                           Integer version) implements Event {
 
     @Override
