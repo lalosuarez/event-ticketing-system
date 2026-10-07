@@ -20,11 +20,10 @@ class TicketCreatedEventProcessor implements TicketEventProcessor {
     @Override
     public void process(Event event) {
         if (!(event instanceof TicketCreatedEvent ticketCreatedEvent)) {
-            logger.error("TicketCreatedEvent processor received unexpected event type");
+            logger.error("TicketCreatedEvent processor received unexpected event type {}", event);
             throw new IllegalArgumentException("Event must be of type TicketCreatedEvent");
         }
 
-        logger.info("Processing ticket event {}", ticketCreatedEvent);
         TicketEntity ticketEntity = toTicketEntity(ticketCreatedEvent);
         var saved = this.ticketRepository.save(ticketEntity);
         logger.info("Ticket created in DB {}", saved);

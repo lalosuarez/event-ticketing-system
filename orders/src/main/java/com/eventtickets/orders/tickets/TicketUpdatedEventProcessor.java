@@ -21,19 +21,16 @@ class TicketUpdatedEventProcessor implements TicketEventProcessor {
     @Override
     public void process(Event event) {
         if (!(event instanceof TicketUpdatedEvent ticketUpdatedEvent)) {
-            logger.error("TicketUpdatedEvent processor received unexpected event type");
+            logger.error("TicketUpdatedEvent processor received unexpected event type {}", event);
             throw new IllegalArgumentException("Event must be of type TicketUpdatedEvent");
         }
 
-        logger.info("Processing ticket event {}", ticketUpdatedEvent);
         var ticketEntity = this.ticketRepository.findById(ticketUpdatedEvent.id())
-                .orElseThrow(() -> {
-                    logger.error("Ticket {} not found", ticketUpdatedEvent.id());
-                    return new InvalidTicketException();
-                });
+                .orElseThrow(() -> new InvalidTicketException("Ticket not found " + ticketUpdatedEvent.id()));
+
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.ticketRepository.save(ticketEntity.with(ticketUpdatedEvent.title(),
-                ticketUpdatedEvent.price(), ticketUpdatedEvent.userId(), ticketUpdatedEvent.version()-1));
+                ticketUpdatedEvent.price(), ticketUpdatedEvent.userId(), ticketUpdatedEvent.version() - 1));
         logger.info("Ticket updated in DB {}", saved);
     }
 
