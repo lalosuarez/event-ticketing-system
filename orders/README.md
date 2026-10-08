@@ -86,7 +86,7 @@ mutation MyMutation {
 
 ```graphql
 mutation MyMutation {
-  cancel(cancelOrderRequest: { userId: "userId-1", orderId: "" }) {
+  cancel(cancelOrderRequest: { userId: "user99", orderId: "" }) {
     id
     status
     expiresAt

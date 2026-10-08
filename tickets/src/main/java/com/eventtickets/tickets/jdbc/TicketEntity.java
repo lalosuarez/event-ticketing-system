@@ -15,6 +15,7 @@ public record TicketEntity(
         String title,
         BigDecimal price,
         String userId,
+        UUID orderId,
         @Version
         Integer version,
         String createdBy,
@@ -23,17 +24,17 @@ public record TicketEntity(
         OffsetDateTime updatedAt
 ) {
     public TicketEntity(String title, BigDecimal price, String userId, String createdBy, String updatedBy) {
-        this(null, title, price, userId, null, createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
+        this(null, title, price, userId, null, null,
+                createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
     }
 
     public TicketEntity with(String title, BigDecimal price, String userId) {
-        return new TicketEntity(id, title, price, this.userId, this.version,
+        return new TicketEntity(id, title, price, this.userId, null, this.version,
                 this.createdBy, this.createdAt, userId, OffsetDateTime.now());
     }
 
-    // For unit tests
-    public TicketEntity with(UUID id) {
-        return new TicketEntity(id, this.title, this.price, this.userId, this.version,
-                this.createdBy, this.createdAt, this.updatedBy, this.updatedAt);
+    public TicketEntity withOrderId(UUID orderId) {
+        return new TicketEntity(id, this.title, this.price, this.userId, orderId, this.version,
+                this.createdBy, this.createdAt, "system-event", OffsetDateTime.now());
     }
 }

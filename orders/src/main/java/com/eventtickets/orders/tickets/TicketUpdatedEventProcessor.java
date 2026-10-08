@@ -3,13 +3,13 @@ package com.eventtickets.orders.tickets;
 import com.eventtickets.orders.exception.InvalidTicketException;
 import com.eventtickets.orders.jdbc.TicketEntity;
 import com.eventtickets.orders.jdbc.TicketRepository;
-import com.eventtickets.orders.messaging.Event;
+import com.eventtickets.orders.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component("TicketUpdatedEventProcessor")
-class TicketUpdatedEventProcessor implements TicketEventProcessor {
+class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(TicketUpdatedEventProcessor.class);
 
     private final TicketRepository ticketRepository;
@@ -19,12 +19,7 @@ class TicketUpdatedEventProcessor implements TicketEventProcessor {
     }
 
     @Override
-    public void process(Event event) {
-        if (!(event instanceof TicketUpdatedEvent ticketUpdatedEvent)) {
-            logger.error("TicketUpdatedEvent processor received unexpected event type {}", event);
-            throw new IllegalArgumentException("Event must be of type TicketUpdatedEvent");
-        }
-
+    public void process(TicketUpdatedEvent ticketUpdatedEvent) {
         var ticketEntity = this.ticketRepository.findById(ticketUpdatedEvent.id())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + ticketUpdatedEvent.id()));
 

@@ -10,26 +10,26 @@ import org.springframework.kafka.core.KafkaTemplate;
 class OrderEventProducerConfiguration {
 
     // Config for OrderCreatedEvent
-    @Bean("kafkaOrderCreatedEventProducer")
-    EventProducer<Event> kafkaOrderCreatedEventProducer(KafkaTemplate<String, Event> kafkaTemplate) {
-        return new KafkaEventProducer(kafkaTemplate, KafkaTopicsConfiguration.ORDER_CREATED_TOPIC);
+    @Bean("kafkaOrderCreatedPublisher")
+    Publisher<Event> kafkaOrderCreatedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.ORDER_CREATED_TOPIC);
     }
 
-    @Bean
-    OrderCreatedProducer orderCreatedEventProducer(
-            @Qualifier("kafkaOrderCreatedEventProducer") EventProducer<Event> eventProducer) {
-        return new OrderCreatedProducer(eventProducer);
+    @Bean("orderCreatedProducer")
+    EventProducer<OrderCreatedEvent> orderCreatedEventProducer(
+            @Qualifier("kafkaOrderCreatedPublisher") Publisher<Event> publisher) {
+        return new OrderCreatedProducer(publisher);
     }
 
     // Config for OrderCancelledEvent
-    @Bean("kafkaOrderCancelledEventProducer")
-    EventProducer<Event> kafkaOrderCancelledEventProducer(KafkaTemplate<String, Event> kafkaTemplate) {
-        return new KafkaEventProducer(kafkaTemplate, KafkaTopicsConfiguration.ORDER_CANCELLED_TOPIC);
+    @Bean("kafkaOrderCancelledPublisher")
+    Publisher<Event> kafkaOrderCancelledPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.ORDER_CANCELLED_TOPIC);
     }
 
-    @Bean
-    OrderCancelledProducer orderCancelledEventProducer(
-            @Qualifier("kafkaOrderCancelledEventProducer") EventProducer<Event> eventProducer) {
-        return new OrderCancelledProducer(eventProducer);
+    @Bean("orderCancelledProducer")
+    EventProducer<OrderCancelledEvent> orderCancelledEventProducer(
+            @Qualifier("kafkaOrderCancelledPublisher") Publisher<Event> publisher) {
+        return new OrderCancelledProducer(publisher);
     }
 }

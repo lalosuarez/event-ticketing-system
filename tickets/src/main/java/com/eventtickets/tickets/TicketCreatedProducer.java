@@ -1,22 +1,25 @@
 package com.eventtickets.tickets;
 
 import com.eventtickets.tickets.messaging.Event;
+import com.eventtickets.tickets.messaging.EventProcessor;
 import com.eventtickets.tickets.messaging.EventProducer;
+import com.eventtickets.tickets.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TicketCreatedProducer {
+class TicketCreatedProducer implements EventProducer<TicketCreatedEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketCreatedProducer.class);
 
-    private final EventProducer<Event> eventProducer;
+    private final Publisher<Event> publisher;
 
-    TicketCreatedProducer(EventProducer<Event> eventProducer) {
-        this.eventProducer = eventProducer;
+    TicketCreatedProducer(Publisher<Event> publisher) {
+        this.publisher = publisher;
     }
 
-    void send(TicketCreatedEvent event) {
+    @Override
+    public void send(TicketCreatedEvent event) {
         logger.trace("Sending ticket updated event: {}", event);
-        eventProducer.send(event);
+        publisher.publish(event);
     }
 }

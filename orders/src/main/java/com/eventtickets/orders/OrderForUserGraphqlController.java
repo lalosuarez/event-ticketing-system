@@ -54,7 +54,7 @@ class OrderForUserGraphqlController {
                 .filter(pos -> pos instanceof OffsetScrollPosition)
                 .map(pos -> ((OffsetScrollPosition) pos).getOffset())
                 .orElse(0L);
-        var userId = "userId-1"; // TODO: Fix user id when implementing security
+        var userId = "user99"; // TODO: Fix user id when implementing security
         logger.info("Received request to query orders with limit {}, offset {} for user {}", limit, offset, userId);
         return this.orderForUserService.getAllForUser(userId, limit, offset);
     }
@@ -64,7 +64,7 @@ class OrderForUserGraphqlController {
                         @NotNull(message = "{order.get.orderId.NotNull.message}")
                         @Size(max = 36, min = 36, message = "{order.get.orderId.Size.message}")
                         String id) {
-        var userId = "userId-1"; // TODO: Fix user id when implementing security
+        var userId = "user99"; // TODO: Fix user id when implementing security
         logger.info("Received request to query order {} for user {}", id, userId);
         return this.orderForUserService.getByIdForUser(id, userId);
     }

@@ -4,8 +4,10 @@ import com.eventtickets.tickets.exception.InvalidTicketException;
 import com.eventtickets.tickets.exception.TicketException;
 import com.eventtickets.tickets.jdbc.TicketEntity;
 import com.eventtickets.tickets.jdbc.TicketRepository;
+import com.eventtickets.tickets.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +18,12 @@ class DefaultTicketForUserService implements TicketForUserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTicketForUserService.class);
 
     private final TicketRepository ticketRepository;
-    private final TicketCreatedProducer ticketCreatedProducer;
-    private final TicketUpdatedProducer ticketUpdatedProducer;
+    private final EventProducer ticketCreatedProducer;
+    private final EventProducer ticketUpdatedProducer;
 
     DefaultTicketForUserService(TicketRepository ticketRepository,
-                                TicketCreatedProducer ticketCreatedProducer,
-                                TicketUpdatedProducer ticketUpdatedProducer) {
+                                @Qualifier("ticketCreatedProducer") EventProducer ticketCreatedProducer,
+                                @Qualifier("ticketUpdatedProducer") EventProducer ticketUpdatedProducer) {
         this.ticketRepository = ticketRepository;
         this.ticketCreatedProducer = ticketCreatedProducer;
         this.ticketUpdatedProducer = ticketUpdatedProducer;

@@ -18,7 +18,7 @@ mutation MyMutation {
         createTicketRequest: {
             title: "Concert 1"
             price: "100.00"
-            userId: "userId-2"
+            userId: "user1"
         }
     ) {
         id
@@ -38,7 +38,7 @@ mutation MyMutation {
             title: "Concert 1"
             price: "199.99"
             id: "01a111db-5d9b-7d3c-8255-67012132c7b6"
-            userId: "userId-1"
+            userId: "user1"
         }
     ) {
         id

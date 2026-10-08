@@ -6,6 +6,7 @@ CREATE TABLE ticketing.ticket
     title      VARCHAR(100)  NOT NULL,
     price      NUMERIC(9, 2) NOT NULL,
     user_id    VARCHAR(50)   NOT NULL,
+    order_id   UUID,
     version    INTEGER       NOT NULL DEFAULT 0,
     created_by VARCHAR(50)   NOT NULL,
     created_at TIMESTAMPTZ   NOT NULL DEFAULT CURRENT_TIMESTAMP,

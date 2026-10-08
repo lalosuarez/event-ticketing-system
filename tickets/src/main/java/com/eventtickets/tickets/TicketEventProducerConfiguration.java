@@ -1,9 +1,6 @@
 package com.eventtickets.tickets;
 
-import com.eventtickets.tickets.messaging.Event;
-import com.eventtickets.tickets.messaging.EventProducer;
-import com.eventtickets.tickets.messaging.KafkaEventProducer;
-import com.eventtickets.tickets.messaging.KafkaTopicsConfiguration;
+import com.eventtickets.tickets.messaging.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,25 +9,25 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Configuration
 class TicketEventProducerConfiguration {
 
-    @Bean("kafkaTicketCreatedEventProducer")
-    EventProducer<Event> kafkaTicketCreatedEventProducer(KafkaTemplate<String, Event> kafkaTemplate) {
-        return new KafkaEventProducer(kafkaTemplate, KafkaTopicsConfiguration.TICKET_CREATED_TOPIC);
+    @Bean("kafkaTicketCreatedPublisher")
+    Publisher<Event> kafkaTicketCreatedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.TICKET_CREATED_TOPIC);
     }
 
-    @Bean
-    TicketCreatedProducer ticketCreatedEventProducer(
-            @Qualifier("kafkaTicketCreatedEventProducer") EventProducer<Event> eventProducer) {
-        return new TicketCreatedProducer(eventProducer);
+    @Bean("ticketCreatedProducer")
+    EventProducer<TicketCreatedEvent> ticketCreatedEventProducer(
+            @Qualifier("kafkaTicketCreatedPublisher") Publisher<Event> publisher) {
+        return new TicketCreatedProducer(publisher);
     }
 
-    @Bean("kafkaTicketUpdatedEventProducer")
-    EventProducer<Event> kafkaTicketUpdatedEventProducer(KafkaTemplate<String, Event> kafkaTemplate) {
-        return new KafkaEventProducer(kafkaTemplate, KafkaTopicsConfiguration.TICKET_CANCELLED_TOPIC);
+    @Bean("kafkaTicketUpdatedPublisher")
+    Publisher<Event> kafkaTicketUpdatedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.TICKET_UPDATED_TOPIC);
     }
 
-    @Bean
-    TicketUpdatedProducer ticketUpdatedEventProducer(
-            @Qualifier("kafkaTicketUpdatedEventProducer") EventProducer<Event> eventProducer) {
-        return new TicketUpdatedProducer(eventProducer);
+    @Bean("ticketUpdatedProducer")
+    EventProducer<TicketUpdatedEvent> ticketUpdatedEventProducer(
+            @Qualifier("kafkaTicketUpdatedPublisher") Publisher<Event> publisher) {
+        return new TicketUpdatedProducer(publisher);
     }
 }

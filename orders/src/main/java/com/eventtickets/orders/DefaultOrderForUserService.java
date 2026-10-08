@@ -5,8 +5,11 @@ import com.eventtickets.orders.exception.InvalidTicketException;
 import com.eventtickets.orders.exception.OrderException;
 import com.eventtickets.orders.exception.OrderNotFoundException;
 import com.eventtickets.orders.jdbc.*;
+import com.eventtickets.orders.messaging.Event;
+import com.eventtickets.orders.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
@@ -23,13 +26,13 @@ class DefaultOrderForUserService implements OrderForUserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultOrderForUserService.class);
     private final OrderForUserRepository orderForUserRepository;
     private final TicketRepository ticketRepository;
-    private final OrderCreatedProducer orderCreatedProducer;
-    private final OrderCancelledProducer orderCancelledProducer;
+    private final EventProducer orderCreatedProducer;
+    private final EventProducer orderCancelledProducer;
 
     DefaultOrderForUserService(OrderForUserRepository orderForUserRepository,
                                TicketRepository ticketRepository,
-                               OrderCreatedProducer orderCreatedProducer,
-                               OrderCancelledProducer orderCancelledProducer) {
+                               @Qualifier("orderCreatedProducer") EventProducer orderCreatedProducer,
+                               @Qualifier("orderCancelledProducer") EventProducer orderCancelledProducer) {
         this.orderForUserRepository = orderForUserRepository;
         this.ticketRepository = ticketRepository;
         this.orderCreatedProducer = orderCreatedProducer;

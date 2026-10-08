@@ -1,5 +1,6 @@
 package com.eventtickets.orders.tickets;
 
+import com.eventtickets.orders.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,10 +13,11 @@ import org.springframework.stereotype.Component;
 class TicketUpdatedKafkaListener {
     private static final Logger logger = LoggerFactory.getLogger(TicketUpdatedKafkaListener.class);
 
-    private final TicketEventProcessor ticketUpdatedEventProcessor;
+    private final EventProcessor<TicketUpdatedEvent> eventProcessor;
 
-    TicketUpdatedKafkaListener(@Qualifier("TicketUpdatedEventProcessor") TicketEventProcessor ticketUpdatedEventProcessor) {
-        this.ticketUpdatedEventProcessor = ticketUpdatedEventProcessor;
+    TicketUpdatedKafkaListener(@Qualifier("TicketUpdatedEventProcessor")
+                               EventProcessor<TicketUpdatedEvent> eventProcessor) {
+        this.eventProcessor = eventProcessor;
     }
 
     /**
@@ -28,8 +30,8 @@ class TicketUpdatedKafkaListener {
     @KafkaListener(topics = "ticket.updated", groupId = "tickets")
     void ticketUpdated(TicketUpdatedEvent ticketUpdatedEvent) {
         try {
-            this.ticketUpdatedEventProcessor.process(ticketUpdatedEvent);
-            logger.info("Success processing ticket updated event: {}", ticketUpdatedEvent);
+            this.eventProcessor.process(ticketUpdatedEvent);
+            logger.debug("Success processing ticket updated event: {}", ticketUpdatedEvent);
         } catch (Exception ex) {
             logger.error("Error processing ticket updated event: {} - {}", ticketUpdatedEvent, ex.getMessage());
             throw ex;

@@ -2,21 +2,23 @@ package com.eventtickets.orders;
 
 import com.eventtickets.orders.messaging.Event;
 import com.eventtickets.orders.messaging.EventProducer;
+import com.eventtickets.orders.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class OrderCancelledProducer {
+class OrderCancelledProducer implements EventProducer<OrderCancelledEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderCancelledProducer.class);
 
-    private final EventProducer<Event> eventProducer;
+    private final Publisher<Event> publisher;
 
-    OrderCancelledProducer(EventProducer<Event> eventProducer) {
-        this.eventProducer = eventProducer;
+    OrderCancelledProducer(Publisher<Event> publisher) {
+        this.publisher = publisher;
     }
 
-    void send(OrderCancelledEvent event) {
+    @Override
+    public void send(OrderCancelledEvent event) {
         logger.trace("Sending order cancelled event: {}", event);
-        eventProducer.send(event);
+        publisher.publish(event);
     }
 }

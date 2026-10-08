@@ -13,7 +13,7 @@ const CREATE_MUTATION = `
       createTicketRequest: {
         title: $title
         price: 5.00
-        userId: "userId-1"
+        userId: "user1"
       }
     ) { id }
   }
@@ -26,7 +26,7 @@ const UPDATE_MUTATION = `
         id: $id
         title: $title
         price: $price
-        userId: "userId-1"
+        userId: "user1"
       }
     ) { price }
   }

@@ -5,11 +5,11 @@ import com.eventtickets.tickets.messaging.Event;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-record TicketUpdatedEvent(UUID id,
-                          String title,
-                          BigDecimal price,
-                          String userId,
-                          Integer version) implements Event {
+public record TicketUpdatedEvent(UUID id,
+                                 String title,
+                                 BigDecimal price,
+                                 String userId,
+                                 Integer version) implements Event {
 
     @Override
     public String getId() {
