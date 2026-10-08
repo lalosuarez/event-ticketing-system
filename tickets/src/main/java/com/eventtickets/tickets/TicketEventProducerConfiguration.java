@@ -15,7 +15,7 @@ class TicketEventProducerConfiguration {
     }
 
     @Bean("ticketCreatedProducer")
-    EventProducer<TicketCreatedEvent> ticketCreatedEventProducer(
+    EventProducer<Event> ticketCreatedEventProducer(
             @Qualifier("kafkaTicketCreatedPublisher") Publisher<Event> publisher) {
         return new TicketCreatedProducer(publisher);
     }
@@ -26,7 +26,7 @@ class TicketEventProducerConfiguration {
     }
 
     @Bean("ticketUpdatedProducer")
-    EventProducer<TicketUpdatedEvent> ticketUpdatedEventProducer(
+    EventProducer<Event> ticketUpdatedEventProducer(
             @Qualifier("kafkaTicketUpdatedPublisher") Publisher<Event> publisher) {
         return new TicketUpdatedProducer(publisher);
     }

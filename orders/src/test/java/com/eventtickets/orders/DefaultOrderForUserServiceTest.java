@@ -62,7 +62,7 @@ class DefaultOrderForUserServiceTest {
 
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(mockSavedEntity);
             when(ticketRepository.findById(ticketIdRef.getId())).thenReturn(Optional.of(mockTicket));
-            doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
+            lenient().doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
 
             // Act
             OrderResponse response = orderService.createForUser(request);
@@ -162,7 +162,7 @@ class DefaultOrderForUserServiceTest {
             // Your code uses entity.withStatusAndUser(...), we stub that chain's output
             when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(existingEntity);
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(cancelledEntity);
-            doNothing().when(orderCancelledProducer).send(any(OrderCancelledEvent.class));
+            lenient().doNothing().when(orderCancelledProducer).send(any(OrderCancelledEvent.class));
 
             // Act
             OrderResponse response = orderService.cancelForUser(new CancelOrderRequest(userId, orderId.toString()));

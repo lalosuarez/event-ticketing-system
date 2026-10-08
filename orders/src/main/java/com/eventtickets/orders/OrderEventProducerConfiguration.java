@@ -16,7 +16,7 @@ class OrderEventProducerConfiguration {
     }
 
     @Bean("orderCreatedProducer")
-    EventProducer<OrderCreatedEvent> orderCreatedEventProducer(
+    EventProducer<Event> orderCreatedEventProducer(
             @Qualifier("kafkaOrderCreatedPublisher") Publisher<Event> publisher) {
         return new OrderCreatedProducer(publisher);
     }
@@ -28,7 +28,7 @@ class OrderEventProducerConfiguration {
     }
 
     @Bean("orderCancelledProducer")
-    EventProducer<OrderCancelledEvent> orderCancelledEventProducer(
+    EventProducer<Event> orderCancelledEventProducer(
             @Qualifier("kafkaOrderCancelledPublisher") Publisher<Event> publisher) {
         return new OrderCancelledProducer(publisher);
     }

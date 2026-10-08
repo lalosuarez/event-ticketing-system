@@ -4,6 +4,7 @@ import com.eventtickets.tickets.exception.InvalidTicketException;
 import com.eventtickets.tickets.exception.TicketException;
 import com.eventtickets.tickets.jdbc.TicketEntity;
 import com.eventtickets.tickets.jdbc.TicketRepository;
+import com.eventtickets.tickets.messaging.Event;
 import com.eventtickets.tickets.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,12 @@ class DefaultTicketForUserService implements TicketForUserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTicketForUserService.class);
 
     private final TicketRepository ticketRepository;
-    private final EventProducer ticketCreatedProducer;
-    private final EventProducer ticketUpdatedProducer;
+    private final EventProducer<Event> ticketCreatedProducer;
+    private final EventProducer<Event> ticketUpdatedProducer;
 
     DefaultTicketForUserService(TicketRepository ticketRepository,
-                                @Qualifier("ticketCreatedProducer") EventProducer ticketCreatedProducer,
-                                @Qualifier("ticketUpdatedProducer") EventProducer ticketUpdatedProducer) {
+                                @Qualifier("ticketCreatedProducer") EventProducer<Event> ticketCreatedProducer,
+                                @Qualifier("ticketUpdatedProducer") EventProducer<Event> ticketUpdatedProducer) {
         this.ticketRepository = ticketRepository;
         this.ticketCreatedProducer = ticketCreatedProducer;
         this.ticketUpdatedProducer = ticketUpdatedProducer;
@@ -49,6 +50,9 @@ class DefaultTicketForUserService implements TicketForUserService {
                 updateTicketRequest.userId());
         if (entity == null) {
             throw new InvalidTicketException("Invalid ticket");
+        }
+        if (entity.orderId() != null) {
+            throw new InvalidTicketException("Could not update. Ticket has been purchased");
         }
         var ticketEntity = this.ticketRepository.save(
                 entity.with(updateTicketRequest.title(), updateTicketRequest.price(), updateTicketRequest.userId()));

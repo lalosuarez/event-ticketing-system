@@ -26,13 +26,13 @@ class DefaultOrderForUserService implements OrderForUserService {
     private static final Logger logger = LoggerFactory.getLogger(DefaultOrderForUserService.class);
     private final OrderForUserRepository orderForUserRepository;
     private final TicketRepository ticketRepository;
-    private final EventProducer orderCreatedProducer;
-    private final EventProducer orderCancelledProducer;
+    private final EventProducer<Event> orderCreatedProducer;
+    private final EventProducer<Event> orderCancelledProducer;
 
     DefaultOrderForUserService(OrderForUserRepository orderForUserRepository,
                                TicketRepository ticketRepository,
-                               @Qualifier("orderCreatedProducer") EventProducer orderCreatedProducer,
-                               @Qualifier("orderCancelledProducer") EventProducer orderCancelledProducer) {
+                               @Qualifier("orderCreatedProducer") EventProducer<Event> orderCreatedProducer,
+                               @Qualifier("orderCancelledProducer") EventProducer<Event> orderCancelledProducer) {
         this.orderForUserRepository = orderForUserRepository;
         this.ticketRepository = ticketRepository;
         this.orderCreatedProducer = orderCreatedProducer;

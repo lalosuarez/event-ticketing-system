@@ -7,7 +7,7 @@ import com.eventtickets.tickets.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TicketCreatedProducer implements EventProducer<TicketCreatedEvent> {
+class TicketCreatedProducer implements EventProducer<Event> {
 
     private static final Logger logger = LoggerFactory.getLogger(TicketCreatedProducer.class);
 
@@ -18,7 +18,7 @@ class TicketCreatedProducer implements EventProducer<TicketCreatedEvent> {
     }
 
     @Override
-    public void send(TicketCreatedEvent event) {
+    public void send(Event event) {
         logger.trace("Sending ticket updated event: {}", event);
         publisher.publish(event);
     }

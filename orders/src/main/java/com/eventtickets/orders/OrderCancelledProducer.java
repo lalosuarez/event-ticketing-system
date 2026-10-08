@@ -6,7 +6,7 @@ import com.eventtickets.orders.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class OrderCancelledProducer implements EventProducer<OrderCancelledEvent> {
+class OrderCancelledProducer implements EventProducer<Event> {
 
     private static final Logger logger = LoggerFactory.getLogger(OrderCancelledProducer.class);
 
@@ -17,7 +17,7 @@ class OrderCancelledProducer implements EventProducer<OrderCancelledEvent> {
     }
 
     @Override
-    public void send(OrderCancelledEvent event) {
+    public void send(Event event) {
         logger.trace("Sending order cancelled event: {}", event);
         publisher.publish(event);
     }

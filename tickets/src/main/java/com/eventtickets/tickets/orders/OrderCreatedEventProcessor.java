@@ -4,6 +4,7 @@ import com.eventtickets.tickets.TicketUpdatedEvent;
 import com.eventtickets.tickets.exception.InvalidTicketException;
 import com.eventtickets.tickets.jdbc.TicketEntity;
 import com.eventtickets.tickets.jdbc.TicketRepository;
+import com.eventtickets.tickets.messaging.Event;
 import com.eventtickets.tickets.messaging.EventProcessor;
 import com.eventtickets.tickets.messaging.EventProducer;
 import org.slf4j.Logger;
@@ -16,10 +17,10 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(OrderCreatedEventProcessor.class);
 
     private final TicketRepository ticketRepository;
-    private final EventProducer ticketUpdatedProducer;
+    private final EventProducer<Event> ticketUpdatedProducer;
 
     OrderCreatedEventProcessor(TicketRepository ticketRepository,
-                               @Qualifier("ticketUpdatedProducer") EventProducer ticketUpdatedProducer) {
+                               @Qualifier("ticketUpdatedProducer") EventProducer<Event> ticketUpdatedProducer) {
         this.ticketRepository = ticketRepository;
         this.ticketUpdatedProducer = ticketUpdatedProducer;
     }
