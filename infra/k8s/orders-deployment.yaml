@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders-app-deployment
+  name: order-app-deployment
   labels:
-    app: orders-app
+    app: order-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: orders-app
+      app: order-app
   template:
     metadata:
       labels:
-        app: orders-app
+        app: order-app
     spec:
       containers:
-        - name: orders-app
-          image: event-ticketing/orders
+        - name: order-app
+          image: event-ticketing/order
           imagePullPolicy: IfNotPresent
           resources:
             requests:
@@ -32,7 +32,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-app-service
+  name: order-app-service
 spec:
   type: NodePort
   ports:
@@ -40,4 +40,4 @@ spec:
       targetPort: 8081
       protocol: TCP
   selector:
-    app: orders-app
+    app: order-app

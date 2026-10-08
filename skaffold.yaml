@@ -3,9 +3,9 @@ kind: Config
 build:
   artifacts:
     # Must match deployment.yaml's image name and must match your pom.xml <artifactId> EXACTLY
-    - image: event-ticketing/orders
-      # Tells Skaffold to switch into the /orders folder BEFORE running Maven
-      context: orders
+    - image: event-ticketing/order
+      # Tells Skaffold to switch into the /order folder BEFORE running Maven
+      context: order
       jib:
         args:
           - -DskipTests
