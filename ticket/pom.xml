@@ -144,10 +144,13 @@
 						<image>eclipse-temurin:25-jdk-alpine</image>
 					</from>
 					<to>
-						<image>event-ticketing/tickets</image>
+						<image>event-ticketing/ticket</image>
 					</to>
 					<container>
 						<user>1000:1000</user>
+						<jvmFlags>
+							<jvmFlag>-Dspring.profiles.active=k8s</jvmFlag>
+						</jvmFlags>
 					</container>
 				</configuration>
 			</plugin>

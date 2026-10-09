@@ -10,6 +10,12 @@ build:
         args:
           - -DskipTests
         type: maven
+    - image: event-ticketing/ticket
+      context: ticket
+      jib:
+        args:
+          - -DskipTests
+        type: maven
   local:
     push: false
     concurrency: 1
@@ -22,8 +28,3 @@ deploy:
       # FORCE SKAFFOLD TO DEPLOY TO DEFAULT NAMESPACE LOCAL_ONLY
       global:
         - --namespace=default
-#portForward:
-#  - resourceType: Service
-#    resourceName: order-service
-#    port: 8081
-#    localPort: 8081
