@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-app-deployment
+  name: order
   labels:
-    app: order-app
+    app: order
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-app
+      app: order
   template:
     metadata:
       labels:
-        app: order-app
+        app: order
     spec:
       containers:
-        - name: order-app
+        - name: order
           image: event-ticketing/order
           imagePullPolicy: IfNotPresent
           resources:
@@ -28,16 +28,25 @@ spec:
           env:
             - name: JAVA_TOOL_OPTIONS
               value: "-Xmx512m -XX:MaxMetaspaceSize=256m"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: event-ticketing-secret
+                  key: db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: event-ticketing-secret
+                  key: db-password
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: order-app-service
+  name: order-service
 spec:
-  type: NodePort
   ports:
     - port: 8081
       targetPort: 8081
       protocol: TCP
   selector:
-    app: order-app
+    app: order

@@ -33,3 +33,4 @@ build/
 .vscode/
 
 infra/.env
+skaffold.env

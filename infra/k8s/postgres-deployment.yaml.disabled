@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-18
+spec:
+  serviceName: "postgres-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18.4-alpine
+          ports:
+            - containerPort: 54321
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: event-ticketing-secret
+                  key: db-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: event-ticketing-secret
+                  key: db-password
+            - name: POSTGRES_DB
+              value: master
+            - name: POSTGRES_MULTIPLE_DATABASES
+              value: orders,tickets
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+            - name: init-script-volume
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        # 3. Reference the ConfigMap as a volume
+        - name: init-script-volume
+          configMap:
+            name: postgres-init-script
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  ports:
+    - port: 54321
+      targetPort: 54321
+      protocol: TCP
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+data:
+  # The key matches the filename that will be created inside the container
+  init-databases.sh: |
+    #!/bin/sh
+    set -e
+    set -u
+
+    create_user_and_database() {
+        database=$1
+        echo "  Creating database '$database'"
+        psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<EOSQL
+            SELECT 'CREATE DATABASE $database'
+            WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$database')\gexec
+    EOSQL
+    }
+
+    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
+        echo "Multiple database creation requested: $POSTGRES_MULTIPLE_DATABASES"
+        for db in $(echo "$POSTGRES_MULTIPLE_DATABASES" | tr ',' ' '); do
+            create_user_and_database "$db"
+        done
+        echo "Multiple databases created successfully!"
+    fi

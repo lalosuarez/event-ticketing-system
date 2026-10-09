@@ -148,6 +148,9 @@
 					</to>
 					<container>
 						<user>1000:1000</user>
+						<jvmFlags>
+							<jvmFlag>-Dspring.profiles.active=k8s</jvmFlag>
+						</jvmFlags>
 					</container>
 				</configuration>
 			</plugin>
