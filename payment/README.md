@@ -1,16 +1,21 @@
 # Getting Started
 
-### Reference Documentation
-For further reference, please consider the following sections:
+## Flyway
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/4.1.1/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.1.1/maven-plugin/build-image.html)
+To recreate items:
 
-### Maven Parent overrides
+```postgresql
+DELETE FROM flyway_schema_history WHERE version = '20260924';
+```
 
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
+### Create Payment
 
+http://localhost:8083/graphiql
+
+```graphql
+mutation PaymentMutation {
+  payment(paymentRequest: { userId: "1", token: "01a10d6f-0b16-7579-8450-b87b73824335" }) {
+    status
+  }
+}
+```
