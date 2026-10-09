@@ -21,12 +21,12 @@ public record TicketEntity(
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
-    public TicketEntity(UUID id, String title, BigDecimal price, String userId) {
-        this(id, title, price, null, userId, OffsetDateTime.now(), userId, OffsetDateTime.now());
+    public TicketEntity(UUID id, String title, BigDecimal price) {
+        this(id, title, price, null, "system-event", OffsetDateTime.now(), "system-event", OffsetDateTime.now());
     }
 
-    public TicketEntity with(String title, BigDecimal price, String userId, Integer version) {
+    public TicketEntity with(String title, BigDecimal price, Integer version) {
         return new TicketEntity(this.id, title, price, version, this.createdBy, this.createdAt,
-                userId, OffsetDateTime.now());
+                "system-event", OffsetDateTime.now());
     }
 }

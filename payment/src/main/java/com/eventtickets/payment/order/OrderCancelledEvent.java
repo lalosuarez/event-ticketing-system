@@ -1,6 +1,6 @@
-package com.eventtickets.order;
+package com.eventtickets.payment.order;
 
-import com.eventtickets.order.messaging.Event;
+import com.eventtickets.payment.messaging.Event;
 
 import java.util.UUID;
 

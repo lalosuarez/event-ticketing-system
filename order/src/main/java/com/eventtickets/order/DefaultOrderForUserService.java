@@ -131,11 +131,12 @@ class DefaultOrderForUserService implements OrderForUserService {
                 ticketEntity.id(),
                 ticketEntity.price(),
                 orderEntity.status(),
-                orderEntity.expiresAt()
+                orderEntity.expiresAt(),
+                orderEntity.version()
         );
     }
 
     private OrderCancelledEvent toOrderCancelledEvent(OrderEntity orderEntity) {
-        return new OrderCancelledEvent(orderEntity.id(), orderEntity.ticketId().getId());
+        return new OrderCancelledEvent(orderEntity.id(), orderEntity.ticketId().getId(), orderEntity.version());
     }
 }

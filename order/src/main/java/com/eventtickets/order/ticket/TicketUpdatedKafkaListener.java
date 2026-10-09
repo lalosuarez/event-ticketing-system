@@ -27,7 +27,7 @@ class TicketUpdatedKafkaListener {
      * processed. Same with updating based on version.
      */
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
-    @KafkaListener(topics = "ticket.updated", groupId = "ticket")
+    @KafkaListener(topics = "ticket.updated")
     void ticketUpdated(TicketUpdatedEvent ticketUpdatedEvent) {
         try {
             this.eventProcessor.process(ticketUpdatedEvent);

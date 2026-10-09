@@ -16,6 +16,12 @@ build:
         args:
           - -DskipTests
         type: maven
+    - image: event-ticketing/payment
+      context: payment
+      jib:
+        args:
+          - -DskipTests
+        type: maven
   local:
     push: false
     concurrency: 1

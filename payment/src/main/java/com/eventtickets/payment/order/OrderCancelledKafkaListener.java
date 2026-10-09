@@ -1,6 +1,6 @@
-package com.eventtickets.ticket.order;
+package com.eventtickets.payment.order;
 
-import com.eventtickets.ticket.messaging.EventProcessor;
+import com.eventtickets.payment.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

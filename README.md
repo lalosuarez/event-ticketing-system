@@ -42,7 +42,12 @@ Stop:
 
 ```shell
 docker compose -f infra/compose.yaml --env-file infra/.env down
+
+# Or to delete volumes
+docker compose -f infra/compose.yaml --env-file infra/.env down -v
 ```
+
+You can manually start each service from terminal or IDE, or run skaffold.
 
 ## Skaffold
 

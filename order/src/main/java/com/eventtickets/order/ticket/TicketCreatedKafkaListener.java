@@ -24,7 +24,7 @@ class TicketCreatedKafkaListener {
      * Attempts and backoff are very important when dealing with concurrency issues due to out of order events.
      */
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
-    @KafkaListener(topics = "ticket.created", groupId = "ticket")
+    @KafkaListener(topics = "ticket.created")
     void ticketCreated(TicketCreatedEvent ticketCreatedEvent) {
         try {
             this.eventProcessor.process(ticketCreatedEvent);

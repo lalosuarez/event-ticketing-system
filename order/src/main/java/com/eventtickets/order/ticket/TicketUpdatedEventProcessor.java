@@ -25,7 +25,7 @@ class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> 
 
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.ticketRepository.save(ticketEntity.with(ticketUpdatedEvent.title(),
-                ticketUpdatedEvent.price(), ticketUpdatedEvent.userId(), ticketUpdatedEvent.version() - 1));
+                ticketUpdatedEvent.price(), ticketUpdatedEvent.version() - 1));
         logger.info("Ticket updated in DB {}", saved);
     }
 
@@ -33,8 +33,7 @@ class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> 
         return new TicketEntity(
                 ticketUpdatedEvent.id(),
                 ticketUpdatedEvent.title(),
-                ticketUpdatedEvent.price(),
-                ticketUpdatedEvent.userId()
+                ticketUpdatedEvent.price()
         );
     }
 }

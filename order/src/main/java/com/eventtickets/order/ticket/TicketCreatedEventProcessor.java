@@ -28,8 +28,7 @@ class TicketCreatedEventProcessor implements EventProcessor<TicketCreatedEvent> 
         return new TicketEntity(
                 ticketCreatedEvent.id(),
                 ticketCreatedEvent.title(),
-                ticketCreatedEvent.price(),
-                ticketCreatedEvent.userId()
+                ticketCreatedEvent.price()
         );
     }
 }

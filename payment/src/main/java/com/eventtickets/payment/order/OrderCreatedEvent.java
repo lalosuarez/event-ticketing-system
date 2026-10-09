@@ -1,7 +1,6 @@
-package com.eventtickets.order;
+package com.eventtickets.payment.order;
 
-import com.eventtickets.order.jdbc.OrderStatus;
-import com.eventtickets.order.messaging.Event;
+import com.eventtickets.payment.messaging.Event;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -11,9 +10,8 @@ record OrderCreatedEvent(UUID id,
                          String userId,
                          UUID ticketId,
                          BigDecimal ticketPrice,
-                         OrderStatus status,
-                         OffsetDateTime expiresAt,
-                         Integer version) implements Event {
+                         String status,
+                         OffsetDateTime expiresAt) implements Event {
 
     @Override
     public String getId() {

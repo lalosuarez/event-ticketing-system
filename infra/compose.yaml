@@ -1,3 +1,4 @@
+# For local development
 services:
   postgres_18:
     image: postgres:18.4-alpine
@@ -9,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       # Comma-separated list of extra DBs
-      POSTGRES_MULTIPLE_DATABASES: orders,tickets
+      POSTGRES_MULTIPLE_DATABASES: orders,tickets,payments
     ports:
       # Exposing to port 54321
       - "54321:5432"
