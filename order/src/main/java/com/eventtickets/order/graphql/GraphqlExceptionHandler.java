@@ -27,8 +27,12 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
             logger.error("Order not found", ex);
             return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.NOT_FOUND);
         }
-        if (ex instanceof InvalidOrderException || ex instanceof InvalidTicketException) {
+        if (ex instanceof InvalidOrderException) {
             logger.error("Invalid order", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
+        }
+        if (ex instanceof InvalidTicketException) {
+            logger.error("Invalid ticket", ex);
             return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
         }
         if (ex instanceof OrderException) {

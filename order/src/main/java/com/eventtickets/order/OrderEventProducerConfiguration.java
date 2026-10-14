@@ -32,4 +32,15 @@ class OrderEventProducerConfiguration {
             @Qualifier("kafkaOrderCancelledPublisher") Publisher<Event> publisher) {
         return new OrderCancelledProducer(publisher);
     }
+
+    @Bean("kafkaOrderCompletedPublisher")
+    Publisher<Event> kafkaOrderCompletedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.ORDER_COMPLETED_TOPIC);
+    }
+
+    @Bean("orderCompletedProducer")
+    EventProducer<Event> orderCompletedEventProducer(
+            @Qualifier("kafkaOrderCompletedPublisher") Publisher<Event> publisher) {
+        return new OrderCompletedProducer(publisher);
+    }
 }

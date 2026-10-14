@@ -5,4 +5,6 @@ import org.springframework.data.repository.ListCrudRepository;
 import java.util.UUID;
 
 public interface OrderRepository extends ListCrudRepository<OrderEntity, UUID> {
+
+    OrderEntity findOneByIdAndUserId(UUID id, String userId);
 }

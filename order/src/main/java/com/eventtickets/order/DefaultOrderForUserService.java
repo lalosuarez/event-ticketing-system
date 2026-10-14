@@ -51,7 +51,7 @@ class DefaultOrderForUserService implements OrderForUserService {
                 });
         // Checking if ticket is not reserved.
         var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketId,
-                List.of(OrderStatus.ACCEPTED, OrderStatus.PENDING));
+                List.of(OrderStatus.COMPLETED, OrderStatus.PENDING));
         if (orderWithTicket != null) {
             logger.error("Ticket id {} already reserved", ticketId);
             throw new InvalidTicketException();
@@ -89,12 +89,21 @@ class DefaultOrderForUserService implements OrderForUserService {
         var entity = this.orderForUserRepository.findOneByIdAndUserId(
                 UUID.fromString(cancelOrderRequest.orderId()),
                 cancelOrderRequest.userId());
-        if (entity == null || OrderStatus.CANCELLED.equals(entity.status())) {
-            logger.error("Order id {} already cancelled or not found", cancelOrderRequest.orderId());
+        if (entity == null) {
+            logger.error("Order id {} not found", cancelOrderRequest.orderId());
             throw new InvalidOrderException("Invalid order");
         }
+        if (OrderStatus.CANCELLED.equals(entity.status())) {
+            logger.error("Order id {} is already cancelled", cancelOrderRequest.orderId());
+            throw new InvalidOrderException("Order is already cancelled");
+        }
+        // Refunds are not supported so can't cancel one is completed
+        if (OrderStatus.COMPLETED.equals(entity.status())) {
+            logger.error("Order id {} already completed", cancelOrderRequest.orderId());
+            throw new InvalidOrderException("Cannot cancel a completed order");
+        }
         var orderEntity = this.orderForUserRepository.save(
-                entity.withStatusAndUser(OrderStatus.CANCELLED, cancelOrderRequest.userId()));
+                entity.with(OrderStatus.CANCELLED, cancelOrderRequest.userId()));
         try {
             this.orderCancelledProducer.send(toOrderCancelledEvent(orderEntity));
         } catch (KafkaException ex) {

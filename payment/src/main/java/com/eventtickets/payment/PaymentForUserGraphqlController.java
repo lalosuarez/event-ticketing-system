@@ -22,8 +22,10 @@ class PaymentForUserGraphqlController {
     }
 
     @MutationMapping
-    PaymentResponse payment(@Argument @Valid PaymentRequest paymentRequest) {
-        logger.info("Received request to create payment {} for user {}", paymentRequest, paymentRequest.userId());
-        return paymentForUserService.paymentForUser(paymentRequest);
+    PaymentResponse stripePayment(@Argument @Valid StripePaymentRequest stripePaymentRequest) {
+        logger.info("Received request to create payment with stripe {} for user {}",
+                stripePaymentRequest, stripePaymentRequest.userId());
+
+        return paymentForUserService.paymentForUser(stripePaymentRequest, PaymentProcessorType.STRIPE);
     }
 }

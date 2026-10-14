@@ -2,6 +2,6 @@ package com.eventtickets.payment.jdbc;
 
 public enum OrderStatus {
     PENDING,
-    ACCEPTED,
+    COMPLETED,
     CANCELLED,
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component("OrderCancelledEventProcessor")
 class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent> {
@@ -26,14 +27,15 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
     }
 
     @Override
+    @Transactional
     public void process(OrderCancelledEvent orderCancelledEvent) {
         var ticketEntity = this.ticketRepository.findById(orderCancelledEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderCancelledEvent.ticketId()));
 
         // Removes the orderId because the ticket is no longer reserved
         var saved = this.ticketRepository.save(ticketEntity.withOrderId(null));
-        logger.info("Ticket {} is no longer reserved", saved.id());
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
+        logger.info("Ticket {} is no longer reserved", saved.id());
     }
 
     private TicketUpdatedEvent toTicketUpdatedEvent(TicketEntity ticketEntity) {

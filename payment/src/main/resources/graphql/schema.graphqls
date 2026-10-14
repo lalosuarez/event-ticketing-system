@@ -2,20 +2,22 @@ scalar DateTime
 
 type Query {
     # Get an user payment by id and token
-    payment(userId: ID!, token: String!): PaymentResponse!
+    payment(orderId: ID!, userId: ID!, token: String!): PaymentResponse!
 }
 
 type Mutation {
-    # For user to make a payment
-    payment(paymentRequest: PaymentRequest!): PaymentResponse!
+    # For user to make a payment using Stripe payment processor
+    stripePayment(stripePaymentRequest: StripePaymentRequest!): PaymentResponse!
 }
 
 # Input values to make a payment
-input PaymentRequest {
+input StripePaymentRequest {
+    orderId: ID!
     userId: ID!
     token: String!
 }
 
 type PaymentResponse {
     status: String!
+    message: String
 }

@@ -1,5 +1,7 @@
 package com.eventtickets.payment.graphql;
 
+import com.eventtickets.payment.exception.InvalidOrderException;
+import com.eventtickets.payment.exception.PaymentException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.execution.ResultPath;
@@ -19,6 +21,14 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
 
     @Override
     protected GraphQLError resolveToSingleError(@NonNull Throwable ex, @NonNull DataFetchingEnvironment env) {
+        if (ex instanceof InvalidOrderException) {
+            logger.error("Invalid order", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
+        }
+        if (ex instanceof PaymentException) {
+            logger.error("Payment error", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.INTERNAL_ERROR);
+        }
         if (ex instanceof DataIntegrityViolationException) {
             logger.error("Data integrity violation", ex);
             return toGraphQLError("Data Integrity Violation", getResultPath(env), getSourceLocation(env),

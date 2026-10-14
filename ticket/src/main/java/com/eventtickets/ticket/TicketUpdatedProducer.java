@@ -18,7 +18,7 @@ class TicketUpdatedProducer implements EventProducer<Event> {
 
     @Override
     public void send(Event event) {
-        logger.trace("Sending ticket updated event: {}", event);
+        logger.debug("Sending ticket updated event: {}", event);
         publisher.publish(event);
     }
 }

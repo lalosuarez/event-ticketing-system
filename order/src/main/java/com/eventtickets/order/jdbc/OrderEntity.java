@@ -29,9 +29,14 @@ public record OrderEntity(
                 createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
     }
 
-    public OrderEntity withStatusAndUser(OrderStatus status, String userId) {
+    public OrderEntity with(OrderStatus status, String userId) {
         return new OrderEntity(this.id, this.userId, this.ticketId, status, this.expiresAt, this.version,
                 this.createdBy, this.createdAt, userId, OffsetDateTime.now());
+    }
+
+    public OrderEntity with(OrderStatus status) {
+        return new OrderEntity(this.id, this.userId, this.ticketId, status, this.expiresAt, this.version,
+                this.createdBy, this.createdAt, "system-event", OffsetDateTime.now());
     }
 
     // For unit tests

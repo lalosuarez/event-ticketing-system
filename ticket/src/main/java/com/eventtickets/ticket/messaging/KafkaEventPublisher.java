@@ -17,7 +17,7 @@ public class KafkaEventPublisher implements Publisher<Event> {
 
     @Override
     public void publish(Event event) {
-        logger.debug("Sending event {} | topic: '{}' | key: '{}'", event, this.topic, event.getId());
         this.kafkaTemplate.send(this.topic, event.getId(), event);
+        logger.info("Sent event {} | topic: '{}' | key: '{}'", event, this.topic, event.getId());
     }
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component("OrderCreatedEventProcessor")
 class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
@@ -26,13 +27,14 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
     }
 
     @Override
+    @Transactional
     public void process(OrderCreatedEvent orderCreatedEvent) {
         var ticketEntity = this.ticketRepository.findById(orderCreatedEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderCreatedEvent.ticketId()));
 
-        var saved = this.ticketRepository.save(ticketEntity.withOrderId(orderCreatedEvent.ticketId()));
-        logger.info("Ticket {} has been reserved with orderId {}", saved.id(), saved.orderId());
+        var saved = this.ticketRepository.save(ticketEntity.withOrderId(orderCreatedEvent.id()));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
+        logger.info("Ticket {} has been reserved with orderId {}", saved.id(), saved.orderId());
     }
 
     private TicketUpdatedEvent toTicketUpdatedEvent(TicketEntity ticketEntity) {

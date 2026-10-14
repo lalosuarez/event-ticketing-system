@@ -18,7 +18,7 @@ class OrderCreatedProducer implements EventProducer<Event> {
 
     @Override
     public void send(Event event) {
-        logger.trace("Sending order created event: {}", event);
+        logger.debug("Sending order created event: {}", event);
         publisher.publish(event);
     }
 }

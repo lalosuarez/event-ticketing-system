@@ -27,6 +27,11 @@ public record OrderEntity(
                 "system-event", OffsetDateTime.now(), "system-event", OffsetDateTime.now());
     }
 
+    public OrderEntity with(OrderStatus orderStatus, String userId) {
+        return new OrderEntity(this.id, this.amount, orderStatus, this.userId, this.version,
+                this.createdBy, this.createdAt, userId, OffsetDateTime.now());
+    }
+
     public OrderEntity with(OrderStatus orderStatus, Integer version) {
         return new OrderEntity(this.id, this.amount, orderStatus, this.userId, version,
                 "system-event", this.createdAt, "system-event", OffsetDateTime.now());

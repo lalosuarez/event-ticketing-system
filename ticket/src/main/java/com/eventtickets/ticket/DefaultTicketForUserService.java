@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ class DefaultTicketForUserService implements TicketForUserService {
     }
 
     @Override
+    @Transactional
     public TicketResponse createForUser(CreateTicketRequest createTicketRequest) {
         logger.debug("Creating Ticket {}", createTicketRequest);
         // Don't add validation by title
@@ -45,6 +47,7 @@ class DefaultTicketForUserService implements TicketForUserService {
     }
 
     @Override
+    @Transactional
     public TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest) {
         var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(updateTicketRequest.id()),
                 updateTicketRequest.userId());

@@ -26,6 +26,7 @@ class TicketCreatedKafkaListener {
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "ticket.created")
     void ticketCreated(TicketCreatedEvent ticketCreatedEvent) {
+        logger.info("Received ticket created event: {}", ticketCreatedEvent);
         try {
             this.eventProcessor.process(ticketCreatedEvent);
             logger.debug("Success processing ticket created event: {}", ticketCreatedEvent);

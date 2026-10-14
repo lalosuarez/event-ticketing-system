@@ -18,7 +18,7 @@ class OrderCancelledProducer implements EventProducer<Event> {
 
     @Override
     public void send(Event event) {
-        logger.trace("Sending order cancelled event: {}", event);
+        logger.debug("Sending order cancelled event: {}", event);
         publisher.publish(event);
     }
 }

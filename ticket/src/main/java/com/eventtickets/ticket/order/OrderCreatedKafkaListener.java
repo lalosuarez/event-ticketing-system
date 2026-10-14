@@ -26,6 +26,7 @@ class OrderCreatedKafkaListener {
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "order.created")
     void orderCreated(OrderCreatedEvent orderCreatedEvent) {
+        logger.info("Received order created event: {}", orderCreatedEvent);
         try {
             this.eventProcessor.process(orderCreatedEvent);
             logger.debug("Success processing order created event: {}", orderCreatedEvent);

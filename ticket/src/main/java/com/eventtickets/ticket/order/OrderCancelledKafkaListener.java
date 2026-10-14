@@ -26,6 +26,7 @@ class OrderCancelledKafkaListener {
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "order.cancelled")
     void orderCancelled(OrderCancelledEvent orderCancelledEvent) {
+        logger.info("Received order cancelled event: {}", orderCancelledEvent);
         try {
             this.eventProcessor.process(orderCancelledEvent);
             logger.debug("Success processing order cancelled event: {}", orderCancelledEvent);

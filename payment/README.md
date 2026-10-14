@@ -14,7 +14,9 @@ http://localhost:8083/graphiql
 
 ```graphql
 mutation PaymentMutation {
-  payment(paymentRequest: { userId: "1", token: "01a10d6f-0b16-7579-8450-b87b73824335" }) {
+  stripePayment(
+    stripePaymentRequest: { orderId: "01a1224c-289f-7206-88bf-6d1c2a9edc3b", token: "tok_1234", userId: "userId-1" }
+  ) {
     status
   }
 }

@@ -29,6 +29,7 @@ class TicketUpdatedKafkaListener {
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "ticket.updated")
     void ticketUpdated(TicketUpdatedEvent ticketUpdatedEvent) {
+        logger.info("Received ticket updated event: {}", ticketUpdatedEvent);
         try {
             this.eventProcessor.process(ticketUpdatedEvent);
             logger.debug("Success processing ticket updated event: {}", ticketUpdatedEvent);
