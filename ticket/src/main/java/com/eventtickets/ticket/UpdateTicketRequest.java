@@ -17,9 +17,5 @@ public record UpdateTicketRequest(
         @DecimalMin(value = "1.00", inclusive = true, message = "{ticket.create.price.DecimalMin.message}")
         @DecimalMax(value = "9999999.99", inclusive = false, message = "{ticket.create.price.DecimalMax.message}")
         @Digits(integer = 7, fraction = 2, message = "{ticket.create.price.Digits.message}")
-        BigDecimal price,
-
-        @NotNull(message = "{ticket.create.userId.NotNull.message}")
-        @Size(max = 36, min = 1, message = "{ticket.create.userId.Size.message}")
-        String userId) {
+        BigDecimal price) {
 }

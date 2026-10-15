@@ -2,6 +2,7 @@ package com.eventtickets.ticket;
 
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.exception.TicketException;
+import com.eventtickets.ticket.exception.TicketNotFoundException;
 import com.eventtickets.ticket.jdbc.TicketEntity;
 import com.eventtickets.ticket.jdbc.TicketRepository;
 import com.eventtickets.ticket.messaging.Event;
@@ -33,10 +34,10 @@ class DefaultTicketForUserService implements TicketForUserService {
 
     @Override
     @Transactional
-    public TicketResponse createForUser(CreateTicketRequest createTicketRequest) {
+    public TicketResponse createForUser(CreateTicketRequest createTicketRequest, String userId) {
         logger.debug("Creating Ticket {}", createTicketRequest);
         // Don't add validation by title
-        var ticketEntity = this.ticketRepository.save(toTicketEntity(createTicketRequest));
+        var ticketEntity = this.ticketRepository.save(toTicketEntity(createTicketRequest, userId));
         try {
             this.ticketCreatedProducer.send(toTicketCreatedEvent(ticketEntity));
         } catch (KafkaException ex) {
@@ -48,9 +49,8 @@ class DefaultTicketForUserService implements TicketForUserService {
 
     @Override
     @Transactional
-    public TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest) {
-        var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(updateTicketRequest.id()),
-                updateTicketRequest.userId());
+    public TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest, String userId) {
+        var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(updateTicketRequest.id()), userId);
         if (entity == null) {
             throw new InvalidTicketException("Invalid ticket");
         }
@@ -58,7 +58,7 @@ class DefaultTicketForUserService implements TicketForUserService {
             throw new InvalidTicketException("Could not update. Ticket has been purchased");
         }
         var ticketEntity = this.ticketRepository.save(
-                entity.with(updateTicketRequest.title(), updateTicketRequest.price(), updateTicketRequest.userId()));
+                entity.with(updateTicketRequest.title(), updateTicketRequest.price(), userId));
         try {
             this.ticketUpdatedProducer.send(toTicketUpdatedEvent(ticketEntity));
         } catch (KafkaException ex) {
@@ -68,13 +68,21 @@ class DefaultTicketForUserService implements TicketForUserService {
         return toTicketResponse(ticketEntity);
     }
 
-    private TicketEntity toTicketEntity(CreateTicketRequest createTicketRequest) {
+    @Override
+    public TicketResponse getByIdForUser(String id, String userId) {
+        var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(id), userId);
+        if (entity == null) {
+            logger.error("Ticket id {} not found", id);
+            throw new TicketNotFoundException("Ticket not found");
+        }
+        return toTicketResponse(entity);
+    }
+
+    private TicketEntity toTicketEntity(CreateTicketRequest createTicketRequest, String userId) {
         return new TicketEntity(
                 createTicketRequest.title(),
                 createTicketRequest.price(),
-                createTicketRequest.userId(),
-                createTicketRequest.userId(),
-                createTicketRequest.userId()
+                userId
         );
     }
 

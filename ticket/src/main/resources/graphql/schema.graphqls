@@ -16,14 +16,12 @@ type Mutation {
 input CreateTicketRequest {
     title: String!
     price: BigDecimal!
-    userId: ID!
 }
 
 input UpdateTicketRequest {
     id: ID!
     title: String!
     price: BigDecimal!
-    userId: ID!
 }
 
 type TicketResponse {

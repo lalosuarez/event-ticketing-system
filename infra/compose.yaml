@@ -10,43 +10,43 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USERNAME}
       # Comma-separated list of extra DBs
-      POSTGRES_MULTIPLE_DATABASES: orders,tickets,payments
+      POSTGRES_MULTIPLE_DATABASES: orders,tickets,payments,keycloak
     ports:
       # Exposing to port 54321
       - "54321:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
       - ./init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
-#    networks:
-#      - keycloak-net
+    networks:
+      - keycloak-net
 
-#  keycloak:
-#    image: quay.io/keycloak/keycloak:24.0
-#    container_name: keycloak
-#    # Setting to "unless-stopped" will make the container to automatically starts when docker starts
-#    restart: no
-#    command: start-dev
-#    environment:
-#      # Database Configuration
-#      KC_DB: postgres
-#      KC_DB_URL: jdbc:postgresql://host.docker.internal:30000/keycloak_graphql
-#      KC_DB_USERNAME: ${DB_USERNAME}
-#      KC_DB_PASSWORD: ${DB_PASSWORD}
-#      # Admin Credentials (Change these for security!)
-#      #KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_USERNAME}
-#      #KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
-#      KEYCLOAK_ADMIN: ${KEYCLOAK_USERNAME}
-#      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
-#      # HTTP Settings
-#      KC_HTTP_PORT: 8081
-#      KC_HTTP_ENABLED: true
-#      KC_HOSTNAME_STRICT: false
-#    ports:
-#      - "8081:8081"
-#    #depends_on:
-#      #- postgres
-#    networks:
-#      - keycloak-net
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    # Setting to "unless-stopped" will make the container to automatically starts when docker starts
+    restart: no
+    command: start-dev
+    environment:
+      # Database Configuration
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://host.docker.internal:54321/keycloak
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      # Admin Credentials (Change these for security!)
+      #KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_USERNAME}
+      #KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_USERNAME}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+      # HTTP Settings
+      KC_HTTP_PORT: 9091
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+    ports:
+      - "9091:9091"
+    depends_on:
+      - postgres_18
+    networks:
+      - keycloak-net
 
   kafka:
     image: apache/kafka:latest
@@ -90,7 +90,7 @@ volumes:
     driver: local
 
 networks:
-#  keycloak-net:
-#    driver: bridge
+  keycloak-net:
+    driver: bridge
   kafka-net:
     driver: bridge

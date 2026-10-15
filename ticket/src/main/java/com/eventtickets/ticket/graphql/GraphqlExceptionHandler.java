@@ -2,6 +2,7 @@ package com.eventtickets.ticket.graphql;
 
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.exception.TicketException;
+import com.eventtickets.ticket.exception.TicketNotFoundException;
 import graphql.GraphQLError;
 import graphql.GraphqlErrorBuilder;
 import graphql.execution.ResultPath;
@@ -23,6 +24,10 @@ class GraphqlExceptionHandler extends DataFetcherExceptionResolverAdapter {
     protected GraphQLError resolveToSingleError(@NonNull Throwable ex, @NonNull DataFetchingEnvironment env) {
         if (ex instanceof InvalidTicketException) {
             logger.error("Invalid ticket", ex);
+            return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
+        }
+        if (ex instanceof TicketNotFoundException) {
+            logger.error("Ticket not found", ex);
             return toGraphQLError(ex.getMessage(), getResultPath(env), getSourceLocation(env), ErrorType.BAD_REQUEST);
         }
         if (ex instanceof TicketException) {

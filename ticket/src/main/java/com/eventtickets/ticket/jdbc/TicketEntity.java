@@ -23,9 +23,9 @@ public record TicketEntity(
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
-    public TicketEntity(String title, BigDecimal price, String userId, String createdBy, String updatedBy) {
+    public TicketEntity(String title, BigDecimal price, String userId) {
         this(null, title, price, userId, null, null,
-                createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
+                userId, OffsetDateTime.now(), userId, OffsetDateTime.now());
     }
 
     public TicketEntity with(String title, BigDecimal price, String userId) {
