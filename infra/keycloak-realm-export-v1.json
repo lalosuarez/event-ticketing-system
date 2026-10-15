@@ -299,6 +299,26 @@
           "attributes": {}
         }
       ],
+      "payment-service": [
+        {
+          "id": "1713c1b5-d789-4122-b060-5c4b2367d5ee",
+          "name": "payment_read_only",
+          "description": "Users with this role can only view their own payments",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "38fd3060-dbf6-41ee-bfb4-92961281c5e5",
+          "attributes": {}
+        },
+        {
+          "id": "2539b20e-b6da-40b1-9385-9056aaf516eb",
+          "name": "payment_owner",
+          "description": "Users with this role can view and create payments for their own",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "38fd3060-dbf6-41ee-bfb4-92961281c5e5",
+          "attributes": {}
+        }
+      ],
       "spa-web-app": [],
       "security-admin-console": [],
       "admin-cli": [],
@@ -444,7 +464,78 @@
       ]
     }
   },
-  "groups": [],
+  "groups": [
+    {
+      "id": "b81bfe81-e768-4421-8d75-9aca25410ca2",
+      "name": "buyer",
+      "path": "/buyer",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "payment-service": [
+          "payment_owner"
+        ],
+        "order-service": [
+          "order_owner"
+        ],
+        "ticket-service": [
+          "ticket_read_only"
+        ]
+      }
+    },
+    {
+      "id": "e2354baa-9e49-4f06-8099-ce56918381d5",
+      "name": "owner",
+      "path": "/owner",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "payment-service": [
+          "payment_owner"
+        ],
+        "order-service": [
+          "order_owner"
+        ],
+        "ticket-service": [
+          "ticket_owner"
+        ]
+      }
+    },
+    {
+      "id": "9fb56b36-bbb8-4b13-a29e-6d39a30670e6",
+      "name": "read-only",
+      "path": "/read-only",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "payment-service": [
+          "payment_read_only"
+        ],
+        "order-service": [
+          "order_read_only"
+        ],
+        "ticket-service": [
+          "ticket_read_only"
+        ]
+      }
+    },
+    {
+      "id": "3e54d98a-f409-4d3b-ab87-e10952262871",
+      "name": "seller",
+      "path": "/seller",
+      "subGroups": [],
+      "attributes": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "ticket-service": [
+          "ticket_owner"
+        ]
+      }
+    }
+  ],
   "defaultRole": {
     "id": "2daed05e-0aca-4271-9751-60ea3a479892",
     "name": "default-roles-event-ticketing",
@@ -504,6 +595,20 @@
     }
   ],
   "clientScopeMappings": {
+    "payment-service": [
+      {
+        "clientScope": "payment:write",
+        "roles": [
+          "payment_owner"
+        ]
+      },
+      {
+        "clientScope": "payment:read",
+        "roles": [
+          "payment_read_only"
+        ]
+      }
+    ],
     "order-service": [
       {
         "clientScope": "order:read",
@@ -537,7 +642,8 @@
       {
         "clientScope": "ticket:write",
         "roles": [
-          "ticket_owner"
+          "ticket_owner",
+          "ticket_read_only"
         ]
       }
     ]
@@ -782,6 +888,62 @@
       ]
     },
     {
+      "id": "38fd3060-dbf6-41ee-bfb4-92961281c5e5",
+      "clientId": "payment-service",
+      "name": "${payment-service}",
+      "description": "Client for payment service for machine to machine access. Don't use it in SPA web apps",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1792092072",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "payment:write",
+        "phone",
+        "offline_access",
+        "microprofile-jwt",
+        "payment:read"
+      ]
+    },
+    {
       "id": "4351c5fa-e3d6-4e2b-84c9-099085708bbe",
       "clientId": "realm-management",
       "name": "${client_realm-management}",
@@ -942,6 +1104,7 @@
         "order:write",
         "address",
         "ticket:write",
+        "payment:write",
         "phone",
         "offline_access",
         "microprofile-jwt"
@@ -1169,6 +1332,62 @@
             "access.token.claim": "true",
             "claim.name": "phone_number_verified",
             "jsonType.label": "boolean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6a222f7-d710-4712-9c2c-400164b8350d",
+      "name": "payment:write",
+      "description": "OpenID Connect scope for payment read and write access",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "4ea77e09-5780-492d-b665-d839b98496da",
+          "name": "payment-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "included.custom.audience": "http://payment"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d781801f-dfb3-4ce9-a4bb-957af7557cb1",
+      "name": "payment:read",
+      "description": "OpenID Connect scope for payment read access only",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "8ff917a3-cef8-4bcc-82cf-b326563ea439",
+          "name": "payment-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "included.custom.audience": "http://payment"
           }
         }
       ]

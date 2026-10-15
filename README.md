@@ -74,7 +74,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:write order:write' \
+  --data-urlencode 'scope=openid ticket:write order:write payment:write' \
   --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
 ```
 
@@ -102,4 +102,17 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'scope=openid order:write' \
   --data-urlencode 'client_id=order-service' \
   --data-urlencode 'client_secret=7Fz9HTQo8zyyX2rkV442Geg1anASe0BU' | jq -r '.access_token')
+```
+
+### Confidential Client for payment:
+
+```shell
+ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'username=user1' \
+  --data-urlencode 'password=secret' \
+  --data-urlencode 'scope=openid payment:write' \
+  --data-urlencode 'client_id=payment-service' \
+  --data-urlencode 'client_secret=QOuxZme5d9pjrlSU2uBVK05kHAQac6UX' | jq -r '.access_token')
 ```

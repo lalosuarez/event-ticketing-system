@@ -33,12 +33,12 @@ class DefaultPaymentForUserService implements PaymentForUserService {
 
     @Override
     @Transactional
-    public PaymentResponse paymentForUser(PaymentRequest paymentRequest, PaymentProcessorType paymentProcessorType) {
+    public PaymentResponse paymentForUser(PaymentRequest paymentRequest, PaymentProcessorType paymentProcessorType,
+                                          String userId) {
         logger.debug("Creating payment {} for {}", paymentRequest, paymentProcessorType);
         // Find order by user
         var orderEntity = this.orderRepository.findOneByIdAndUserId(
-                UUID.fromString(paymentRequest.orderId()),
-                paymentRequest.userId());
+                UUID.fromString(paymentRequest.orderId()), userId);
         if (orderEntity == null) {
             throw new InvalidOrderException("Invalid order");
         }
@@ -50,12 +50,11 @@ class DefaultPaymentForUserService implements PaymentForUserService {
         }
         // Proceess payment (by calling 3rd party, stripe, apple pay, etc)
         // and Create charge record
-        var charge = getPaymentService(paymentProcessorType).process(paymentRequest, orderEntity.amount());
+        var charge = getPaymentService(paymentProcessorType).process(paymentRequest, orderEntity.amount(), userId);
 
         // Emit payment:created event
         this.paymentCreatedProducer.send(toPaymentCreatedEvent(charge, orderEntity));
 
-        //this.orderRepository.save(orderEntity.with(OrderStatus.COMPLETED, paymentRequest.userId()));
         return new PaymentResponse(PaymentStatus.PROCESSED, "Payment processed");
     }
 

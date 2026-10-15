@@ -7,5 +7,6 @@ import jakarta.validation.Valid;
  */
 interface PaymentForUserService {
 
-    PaymentResponse paymentForUser(@Valid PaymentRequest paymentRequest, PaymentProcessorType paymentProcessorType);
+    PaymentResponse paymentForUser(@Valid PaymentRequest paymentRequest, PaymentProcessorType paymentProcessorType,
+                                   String userId);
 }

@@ -7,5 +7,5 @@ interface PaymentProcessor<T> {
         STRIPE
     }
 
-    T process(PaymentRequest paymentRequest, BigDecimal amount);
+    T process(PaymentRequest paymentRequest, BigDecimal amount, String userId);
 }

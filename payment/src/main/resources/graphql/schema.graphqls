@@ -13,7 +13,6 @@ type Mutation {
 # Input values to make a payment
 input StripePaymentRequest {
     orderId: ID!
-    userId: ID!
     token: String!
 }
 
