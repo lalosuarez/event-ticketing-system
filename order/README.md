@@ -74,7 +74,7 @@ query MyQuery {
 
 ```graphql
 mutation MyMutation {
-  create(createOrderRequest: { userId: "usr1", ticketId: "01a0f256-bf4e-7043-b9bc-7f45f9f8e79e" }) {
+  create(createOrderRequest: { ticketId: "01a0f256-bf4e-7043-b9bc-7f45f9f8e79e" }) {
     id
     status
     expiresAt
@@ -86,7 +86,7 @@ mutation MyMutation {
 
 ```graphql
 mutation MyMutation {
-  cancel(cancelOrderRequest: { userId: "user99", orderId: "" }) {
+  cancel(cancelOrderRequest: { orderId: "01a13bd0-05ac-7d96-9c89-0d951ec40d74" }) {
     id
     status
     expiresAt

@@ -12,6 +12,9 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.query.ScrollSubrange;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 
 /**
@@ -28,18 +31,22 @@ class OrderForUserGraphqlController {
         this.orderForUserService = orderForUserService;
     }
 
+    @PreAuthorize("(hasAuthority('order:write')) and (hasRole('ORDER_OWNER'))")
     @MutationMapping
-    OrderResponse create(@Argument @Valid CreateOrderRequest createOrderRequest) {
-        // TODO: Validate userId in the req is the same as yhe user id in the security context when implementing security
-        logger.info("Received request to create order {} for user {}", createOrderRequest, createOrderRequest.userId());
-        return this.orderForUserService.createForUser(createOrderRequest);
+    OrderResponse create(@Argument @Valid CreateOrderRequest createOrderRequest,
+                         @AuthenticationPrincipal Jwt jwt) {
+        var userId = jwt.getSubject();
+        logger.info("Received request to create order {} for user {}", createOrderRequest, userId);
+        return this.orderForUserService.createForUser(createOrderRequest, userId);
     }
 
+    @PreAuthorize("(hasAuthority('order:write')) and (hasRole('ORDER_OWNER'))")
     @MutationMapping
-    OrderResponse cancel(@Argument @Valid CancelOrderRequest cancelOrderRequest) {
-        // TODO: Validate userId in the req is the same as yhe user id in the security context when implementing security
-        logger.info("Received request to cancel order {} for user {}", cancelOrderRequest, cancelOrderRequest.userId());
-        return this.orderForUserService.cancelForUser(cancelOrderRequest);
+    OrderResponse cancel(@Argument @Valid CancelOrderRequest cancelOrderRequest,
+                         @AuthenticationPrincipal Jwt jwt) {
+        var userId = jwt.getSubject();
+        logger.info("Received request to cancel order {} for user {}", cancelOrderRequest, userId);
+        return this.orderForUserService.cancelForUser(cancelOrderRequest, userId);
     }
 
     /**
@@ -47,24 +54,27 @@ class OrderForUserGraphqlController {
      * Specify UnitOutput param so graphql knows is the parent. If you don't want to include the parent object
      * in your method signature, specify the type directly in the annotation.
      */
+    @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
     @QueryMapping
-    Window<OrderResponse> orders(ScrollSubrange scrollSubrange) {
+    Window<OrderResponse> orders(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);
         long offset = scrollSubrange.position()
                 .filter(pos -> pos instanceof OffsetScrollPosition)
                 .map(pos -> ((OffsetScrollPosition) pos).getOffset())
                 .orElse(0L);
-        var userId = "user99"; // TODO: Fix user id when implementing security
+        var userId = jwt.getSubject();
         logger.info("Received request to query order with limit {}, offset {} for user {}", limit, offset, userId);
         return this.orderForUserService.getAllForUser(userId, limit, offset);
     }
 
+    @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
     @QueryMapping
     OrderResponse order(@Argument
                         @NotNull(message = "{order.get.orderId.NotNull.message}")
                         @Size(max = 36, min = 36, message = "{order.get.orderId.Size.message}")
-                        String id) {
-        var userId = "user99"; // TODO: Fix user id when implementing security
+                        String id,
+                        @AuthenticationPrincipal Jwt jwt) {
+        var userId = jwt.getSubject();
         logger.info("Received request to query order {} for user {}", id, userId);
         return this.orderForUserService.getByIdForUser(id, userId);
     }

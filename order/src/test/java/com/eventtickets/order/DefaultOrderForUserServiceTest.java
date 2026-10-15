@@ -49,14 +49,13 @@ class DefaultOrderForUserServiceTest {
         @DisplayName("Should successfully map request and save new order as PENDING")
         void createForUser_ValidRequest_ReturnsOrderResponse() {
             // Arrange
-            var request = new CreateOrderRequest("user-123", "01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
+            var request = new CreateOrderRequest("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
             var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"));
             var mockSavedEntity = new OrderEntity(
-                    "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15),
-                    "user-123", "user-123")
+                    "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15))
                     .withId(expectedId);
 
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(mockSavedEntity);
@@ -64,7 +63,7 @@ class DefaultOrderForUserServiceTest {
             lenient().doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
 
             // Act
-            OrderResponse response = orderService.createForUser(request);
+            OrderResponse response = orderService.createForUser(request, "user-123");
 
             // Assert
             assertThat(response).isNotNull();
@@ -85,11 +84,9 @@ class DefaultOrderForUserServiceTest {
             AggregateReference<TicketEntity, UUID> ticketId1 = AggregateReference.to(UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e"));
             AggregateReference<TicketEntity, UUID> ticketId2 = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
-            OrderEntity entity1 = new OrderEntity(userId, ticketId1, OrderStatus.PENDING, OffsetDateTime.now(),
-                    userId, userId)
+            OrderEntity entity1 = new OrderEntity(userId, ticketId1, OrderStatus.PENDING, OffsetDateTime.now())
                     .withId(UUID.randomUUID());
-            OrderEntity entity2 = new OrderEntity(userId, ticketId2, OrderStatus.PENDING, OffsetDateTime.now(),
-                    userId, userId)
+            OrderEntity entity2 = new OrderEntity(userId, ticketId2, OrderStatus.PENDING, OffsetDateTime.now())
                     .withId(UUID.randomUUID());
 
             when(orderForUserRepository.findAllByUserId(userId, 2, 0L)).thenReturn(List.of(entity1, entity2));
@@ -111,7 +108,7 @@ class DefaultOrderForUserServiceTest {
             AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
             OrderEntity mockEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING,
-                    OffsetDateTime.now(), userId, userId)
+                    OffsetDateTime.now())
                     .withId(orderId);
 
             when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(mockEntity);
@@ -151,11 +148,9 @@ class DefaultOrderForUserServiceTest {
             AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
 
-            OrderEntity existingEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING,
-                    OffsetDateTime.now(), userId, userId)
+            OrderEntity existingEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING, OffsetDateTime.now())
                     .withId(orderId);
-            OrderEntity cancelledEntity = new OrderEntity(userId, ticketId, OrderStatus.CANCELLED,
-                    OffsetDateTime.now(), userId, userId)
+            OrderEntity cancelledEntity = new OrderEntity(userId, ticketId, OrderStatus.CANCELLED, OffsetDateTime.now())
                     .withId(orderId);
 
             // Your code uses entity.withStatusAndUser(...), we stub that chain's output
@@ -164,7 +159,7 @@ class DefaultOrderForUserServiceTest {
             lenient().doNothing().when(orderCancelledProducer).send(any(OrderCancelledEvent.class));
 
             // Act
-            OrderResponse response = orderService.cancelForUser(new CancelOrderRequest(userId, orderId.toString()));
+            OrderResponse response = orderService.cancelForUser(new CancelOrderRequest(orderId.toString()), userId);
 
             // Assert
             assertThat(response).isNotNull();

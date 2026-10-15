@@ -24,9 +24,9 @@ public record OrderEntity(
         OffsetDateTime updatedAt
 ) {
     public OrderEntity(String userId, AggregateReference<TicketEntity, UUID> ticketId, OrderStatus status,
-                       OffsetDateTime expiresAt, String createdBy, String updatedBy) {
+                       OffsetDateTime expiresAt) {
         this(null, userId, ticketId, status, expiresAt, null,
-                createdBy, OffsetDateTime.now(), updatedBy, OffsetDateTime.now());
+                userId, OffsetDateTime.now(), userId, OffsetDateTime.now());
     }
 
     public OrderEntity with(OrderStatus status, String userId) {

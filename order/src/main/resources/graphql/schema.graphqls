@@ -16,13 +16,11 @@ type Mutation {
 
 # Input values to create an order
 input CreateOrderRequest {
-    userId: ID!
     ticketId: ID!
 }
 
 # Input values to cancel an order
 input CancelOrderRequest {
-    userId: ID!
     orderId: ID!
 }
 

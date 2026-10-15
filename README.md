@@ -66,7 +66,7 @@ Keycloak: http://localhost:9091
 Get token by calling Keycloak:
 
 
-Public Client:
+### Public Client for ticket, order, and payment:
 
 ```shell
 ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
@@ -74,11 +74,11 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:readonly' \
+  --data-urlencode 'scope=openid ticket:write order:write' \
   --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
 ```
 
-Confidential Client 1:
+### Confidential Client for ticket:
 
 ```shell
 ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
@@ -89,4 +89,17 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'scope=openid ticket:write' \
   --data-urlencode 'client_id=ticket-service' \
   --data-urlencode 'client_secret=aUU4cHRrMSw839jQ4FmJOgNaV26U6S4l' | jq -r '.access_token')
+```
+
+### Confidential Client for order:
+
+```shell
+ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'username=user1' \
+  --data-urlencode 'password=secret' \
+  --data-urlencode 'scope=openid order:write' \
+  --data-urlencode 'client_id=order-service' \
+  --data-urlencode 'client_secret=7Fz9HTQo8zyyX2rkV442Geg1anASe0BU' | jq -r '.access_token')
 ```

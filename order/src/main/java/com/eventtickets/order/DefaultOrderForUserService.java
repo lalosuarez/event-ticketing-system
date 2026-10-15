@@ -41,7 +41,7 @@ class DefaultOrderForUserService implements OrderForUserService {
 
     @Override
     @Transactional
-    public OrderResponse createForUser(CreateOrderRequest createOrderRequest) {
+    public OrderResponse createForUser(CreateOrderRequest createOrderRequest, String userId) {
         logger.debug("Creating Order {}", createOrderRequest);
         var ticketId = UUID.fromString(createOrderRequest.ticketId());
         var ticketEntity = this.ticketRepository.findById(ticketId)
@@ -56,7 +56,7 @@ class DefaultOrderForUserService implements OrderForUserService {
             logger.error("Ticket id {} already reserved", ticketId);
             throw new InvalidTicketException();
         }
-        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest));
+        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, userId));
         try {
             this.orderCreatedProducer.send(toOrderCreatedEvent(orderEntity, ticketEntity));
         } catch (KafkaException ex) {
@@ -85,10 +85,9 @@ class DefaultOrderForUserService implements OrderForUserService {
 
     @Override
     @Transactional
-    public OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest) {
+    public OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest, String userId) {
         var entity = this.orderForUserRepository.findOneByIdAndUserId(
-                UUID.fromString(cancelOrderRequest.orderId()),
-                cancelOrderRequest.userId());
+                UUID.fromString(cancelOrderRequest.orderId()), userId);
         if (entity == null) {
             logger.error("Order id {} not found", cancelOrderRequest.orderId());
             throw new InvalidOrderException("Invalid order");
@@ -102,8 +101,7 @@ class DefaultOrderForUserService implements OrderForUserService {
             logger.error("Order id {} already completed", cancelOrderRequest.orderId());
             throw new InvalidOrderException("Cannot cancel a completed order");
         }
-        var orderEntity = this.orderForUserRepository.save(
-                entity.with(OrderStatus.CANCELLED, cancelOrderRequest.userId()));
+        var orderEntity = this.orderForUserRepository.save(entity.with(OrderStatus.CANCELLED, userId));
         try {
             this.orderCancelledProducer.send(toOrderCancelledEvent(orderEntity));
         } catch (KafkaException ex) {
@@ -119,17 +117,15 @@ class DefaultOrderForUserService implements OrderForUserService {
                 orderEntity.ticketId().getId().toString(), orderEntity.status().name(), orderEntity.expiresAt());
     }
 
-    private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest) {
+    private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest, String userId) {
         if (createOrderRequest == null) {
             return null;
         }
         return new OrderEntity(
-                createOrderRequest.userId(),
+                userId,
                 AggregateReference.to(UUID.fromString(createOrderRequest.ticketId())),
                 OrderStatus.PENDING,
-                OffsetDateTime.now().plusMinutes(15),
-                createOrderRequest.userId(),
-                createOrderRequest.userId()
+                OffsetDateTime.now().plusMinutes(15)
         );
     }
 
