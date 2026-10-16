@@ -3,6 +3,10 @@ scalar BigDecimal
 type Query {
     # Get an user tickt by id
     ticket(id: ID!): TicketResponse!
+    # Get a list of tickets available for purchase with cursor-based pagination
+    ticketsForPurchase(first: Int, after: String, last: Int, before: String): TicketResponseConnection
+    # Get a list of user created tickets with cursor-based pagination
+    tickets(first: Int, after: String, last: Int, before: String): TicketResponseConnection
 }
 
 type Mutation {
@@ -29,4 +33,5 @@ type TicketResponse {
     title: String!
     price: String!
     userId: ID!
+    orderId: ID
 }

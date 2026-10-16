@@ -1,4 +1,6 @@
 scalar DateTime
+scalar DateTimeUtc
+scalar DateTimeLocal
 
 type Query {
     # Get a list of user orders with cursor-based pagination
@@ -27,7 +29,15 @@ input CancelOrderRequest {
 type OrderResponse {
     id: ID!
     userId: ID!
-    ticketId: ID!
+    ticket: TicketResponse!
     status: String!
-    expiresAt: DateTime!
+    expiresAt: DateTimeLocal!
+    dateTimeUtc: DateTimeUtc
+    dateTimeLocal: DateTimeLocal
+}
+
+type TicketResponse {
+    id: ID!
+    title: String!
+    price: String!
 }

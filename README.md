@@ -68,11 +68,25 @@ Get token by calling Keycloak:
 
 ### Public Client for ticket, order, and payment:
 
+Buyer:
+
 ```shell
 ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
+  --data-urlencode 'password=secret' \
+  --data-urlencode 'scope=openid ticket:write order:write payment:write' \
+  --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
+```
+
+Seller:
+
+```shell
+ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'username=user2' \
   --data-urlencode 'password=secret' \
   --data-urlencode 'scope=openid ticket:write order:write payment:write' \
   --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')

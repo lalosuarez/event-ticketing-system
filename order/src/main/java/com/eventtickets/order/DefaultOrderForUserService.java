@@ -7,6 +7,7 @@ import com.eventtickets.order.exception.OrderNotFoundException;
 import com.eventtickets.order.jdbc.*;
 import com.eventtickets.order.messaging.Event;
 import com.eventtickets.order.messaging.EventProducer;
+import com.eventtickets.order.ticket.TicketResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,8 +69,8 @@ class DefaultOrderForUserService implements OrderForUserService {
 
     @Override
     public Window<OrderResponse> getAllForUser(String userId, Integer limit, Long offset) {
-        List<OrderEntity> units = this.orderForUserRepository.findAllByUserId(userId, limit, offset);
-        Window<OrderEntity> results = Window.from(units, index -> ScrollPosition.offset(offset + index + 1));
+        List<OrderEntity> items = this.orderForUserRepository.findAllByUserId(userId, limit, offset);
+        Window<OrderEntity> results = Window.from(items, index -> ScrollPosition.offset(offset + index + 1));
         return results.map(this::toOrderResponse);
     }
 
@@ -113,8 +114,11 @@ class DefaultOrderForUserService implements OrderForUserService {
     }
 
     private OrderResponse toOrderResponse(OrderEntity orderEntity) {
+        // This is important to set, otherwise methods in OrderForUserGraphqlController to get orders will fail
+        var ticketResponse = new TicketResponse(orderEntity.ticketId().getId().toString(), null, null);
+
         return new OrderResponse(orderEntity.id().toString(), orderEntity.userId(),
-                orderEntity.ticketId().getId().toString(), orderEntity.status().name(), orderEntity.expiresAt());
+                ticketResponse, orderEntity.status().name(), orderEntity.expiresAt(), orderEntity.createdAt());
     }
 
     private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest, String userId) {

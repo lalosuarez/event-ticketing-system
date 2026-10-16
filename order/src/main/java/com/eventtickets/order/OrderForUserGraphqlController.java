@@ -51,7 +51,7 @@ class OrderForUserGraphqlController {
 
     /**
      * Uses cursor-based pagination
-     * Specify UnitOutput param so graphql knows is the parent. If you don't want to include the parent object
+     * Specify OrderResponse param so graphql knows is the parent. If you don't want to include the parent object
      * in your method signature, specify the type directly in the annotation.
      */
     @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
@@ -63,7 +63,7 @@ class OrderForUserGraphqlController {
                 .map(pos -> ((OffsetScrollPosition) pos).getOffset())
                 .orElse(0L);
         var userId = jwt.getSubject();
-        logger.info("Received request to query order with limit {}, offset {} for user {}", limit, offset, userId);
+        logger.info("Received request to query orders with limit {}, offset {} for user {}", limit, offset, userId);
         return this.orderForUserService.getAllForUser(userId, limit, offset);
     }
 

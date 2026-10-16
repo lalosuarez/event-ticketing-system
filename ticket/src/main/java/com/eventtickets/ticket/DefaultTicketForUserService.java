@@ -10,10 +10,13 @@ import com.eventtickets.ticket.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -78,6 +81,20 @@ class DefaultTicketForUserService implements TicketForUserService {
         return toTicketResponse(entity);
     }
 
+    @Override
+    public Window<TicketResponse> getAllForPurchase(String userId, int limit, long offset) {
+        List<TicketEntity> items = this.ticketRepository.findAllForPurchase(userId, limit, offset);
+        Window<TicketEntity> results = Window.from(items, index -> ScrollPosition.offset(offset + index + 1));
+        return results.map(this::toTicketResponse);
+    }
+
+    @Override
+    public Window<TicketResponse> getAllForUser(String userId, int limit, long offset) {
+        List<TicketEntity> items = this.ticketRepository.findAllByUserId(userId, limit, offset);
+        Window<TicketEntity> results = Window.from(items, index -> ScrollPosition.offset(offset + index + 1));
+        return results.map(this::toTicketResponse);
+    }
+
     private TicketEntity toTicketEntity(CreateTicketRequest createTicketRequest, String userId) {
         return new TicketEntity(
                 createTicketRequest.title(),
@@ -91,7 +108,8 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id().toString(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId()
+                ticketEntity.userId(),
+                ticketEntity.orderId() == null ? null : ticketEntity.orderId().toString()
         );
     }
 
