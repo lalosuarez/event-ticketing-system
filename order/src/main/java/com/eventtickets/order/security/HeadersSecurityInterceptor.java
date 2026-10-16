@@ -5,28 +5,18 @@ import graphql.GraphqlErrorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * TODO: ADD JUST AN INTERCEPTOR THAT VALIDATES GATEWAY SECRET
+ * Validates gateway secret header
  */
-@Profile("disabled")
 @Component
 public class HeadersSecurityInterceptor implements WebGraphQlInterceptor {
 
@@ -34,7 +24,7 @@ public class HeadersSecurityInterceptor implements WebGraphQlInterceptor {
 
     private final String gatewaySecret;
 
-    public HeadersSecurityInterceptor(@Value("${gateway.graphql.shared.secret:mydefaultgateewaysecret}") String gatewaySecret) {
+    public HeadersSecurityInterceptor(@Value("${gateway.graphql.secret}") String gatewaySecret) {
         this.gatewaySecret = gatewaySecret;
     }
 
@@ -53,32 +43,8 @@ public class HeadersSecurityInterceptor implements WebGraphQlInterceptor {
             return handleEarlyFailure(request, chain, "Forbidden", ErrorType.FORBIDDEN);
         }
 
-        // 3. Extract Plain-Text User Identity Context
-        String userId = request.getHeaders().getFirst("X-User-Id");
-        if (userId == null) {
-            logger.error("Invalid X-User-Id header");
-            return handleEarlyFailure(request, chain, "Forbidden", ErrorType.FORBIDDEN);
-        }
-
-        // 4. Map Context Roles to Granted Authorities
-        String rolesStr = request.getHeaders().getFirst("X-User-Roles");
-        List<GrantedAuthority> authorities = Collections.emptyList();
-        if (rolesStr != null && !rolesStr.isBlank()) {
-            authorities = Arrays.stream(rolesStr.split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-        }
-
-        // 5. Establish the trusted internal authentication footprint
-        PreAuthenticatedAuthenticationToken authentication =
-                new PreAuthenticatedAuthenticationToken(userId, null, authorities);
-
-        // 6. Commit to ThreadLocal Security Context
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         // Advance to the query resolvers, writing the identity token context safely into WebFlux/Reactive paths
-        return chain.next(request)
-                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+        return chain.next(request);
     }
 
     /**

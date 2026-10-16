@@ -1,5 +1,24 @@
 # event-ticketing-system
 
+Microservices architecture with GraphQl and Saga pattern using choreography for comunication between services.
+Security implemented with keycloak.
+
+Overall Architecture:
+
+```text
+[ UI Client ] 
+    │
+    ▼ (HTTPS, OAuth2 Token)
+[ Spring Cloud Gateway ]  <──► [ Keycloak ] (Token Validation / Token Exchange)
+    │
+    ▼ (HTTP, Validated Context/Headers)
+[ Apollo Router / Gateway ]
+    │
+    ├──► [ Ticket (GraphQL Subgraph) ]
+    ├──► [ Order (GraphQL Subgraph) ]
+    └──► [ Payment (GraphQL Subgraph) ]
+```
+
 ## Install:
 - Docker/Docker Desktop
 - Kubernetes (If you have Docker Desktop you can install it from there)
@@ -13,6 +32,7 @@
 - 8081 - orders
 - 8082 - ticket
 - 8083 - payment
+- 8084 - gateway
 
 ## Create .env file
 
@@ -66,7 +86,7 @@ Keycloak: http://localhost:9091
 Get token by calling Keycloak:
 
 
-### Public Client for ticket, order, and payment:
+### Public Client for gateway, ticket, order, and payment:
 
 Buyer:
 
@@ -76,7 +96,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:write order:write payment:write' \
+  --data-urlencode 'scope=openid ticket:write order:write payment:write gateway:read' \
   --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
 ```
 
@@ -129,4 +149,17 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'scope=openid payment:write' \
   --data-urlencode 'client_id=payment-service' \
   --data-urlencode 'client_secret=QOuxZme5d9pjrlSU2uBVK05kHAQac6UX' | jq -r '.access_token')
+```
+
+### Confidential Client for gateway:
+
+```shell
+ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'username=user1' \
+  --data-urlencode 'password=secret' \
+  --data-urlencode 'scope=openid gateway:read' \
+  --data-urlencode 'client_id=gateway-service' \
+  --data-urlencode 'client_secret=Pd8G4vR9yOVqovsEEzOndE5Llsw9HPcW' | jq -r '.access_token')
 ```

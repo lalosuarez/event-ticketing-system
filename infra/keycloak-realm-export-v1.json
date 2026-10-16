@@ -320,6 +320,17 @@
         }
       ],
       "spa-web-app": [],
+      "gateway-service": [
+        {
+          "id": "6d8d0c05-0e57-4fac-b74b-5c9d7bdd53ab",
+          "name": "gateway_read_only",
+          "description": "Users with this role can hit the gateway service",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "90e6afda-cf18-4b18-a582-ddad15b22412",
+          "attributes": {}
+        }
+      ],
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
@@ -476,6 +487,9 @@
         "payment-service": [
           "payment_owner"
         ],
+        "gateway-service": [
+          "gateway_read_only"
+        ],
         "order-service": [
           "order_owner"
         ],
@@ -494,6 +508,9 @@
       "clientRoles": {
         "payment-service": [
           "payment_owner"
+        ],
+        "gateway-service": [
+          "gateway_read_only"
         ],
         "order-service": [
           "order_owner"
@@ -514,6 +531,9 @@
         "payment-service": [
           "payment_read_only"
         ],
+        "gateway-service": [
+          "gateway_read_only"
+        ],
         "order-service": [
           "order_read_only"
         ],
@@ -530,6 +550,9 @@
       "attributes": {},
       "realmRoles": [],
       "clientRoles": {
+        "gateway-service": [
+          "gateway_read_only"
+        ],
         "ticket-service": [
           "ticket_owner"
         ]
@@ -606,6 +629,14 @@
         "clientScope": "payment:read",
         "roles": [
           "payment_read_only"
+        ]
+      }
+    ],
+    "gateway-service": [
+      {
+        "clientScope": "gateway:read",
+        "roles": [
+          "gateway_read_only"
         ]
       }
     ],
@@ -822,6 +853,60 @@
         "phone",
         "offline_access",
         "microprofile-jwt"
+      ]
+    },
+    {
+      "id": "90e6afda-cf18-4b18-a582-ddad15b22412",
+      "clientId": "gateway-service",
+      "name": "${gateway-service}",
+      "description": "Client for gateway service for machine to machine access. Don't use it in SPA web apps",
+      "rootUrl": "",
+      "adminUrl": "",
+      "baseUrl": "",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "**********",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "/*"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "client.secret.creation.time": "1792170324",
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt",
+        "gateway:read"
       ]
     },
     {
@@ -1107,7 +1192,8 @@
         "payment:write",
         "phone",
         "offline_access",
-        "microprofile-jwt"
+        "microprofile-jwt",
+        "gateway:read"
       ]
     },
     {
@@ -1196,8 +1282,8 @@
           "config": {
             "id.token.claim": "false",
             "lightweight.claim": "false",
-            "access.token.claim": "true",
             "introspection.token.claim": "true",
+            "access.token.claim": "true",
             "included.custom.audience": "http://order"
           }
         }
@@ -1357,8 +1443,8 @@
           "config": {
             "id.token.claim": "false",
             "lightweight.claim": "false",
-            "access.token.claim": "true",
             "introspection.token.claim": "true",
+            "access.token.claim": "true",
             "included.custom.audience": "http://payment"
           }
         }
@@ -1385,8 +1471,8 @@
           "config": {
             "id.token.claim": "false",
             "lightweight.claim": "false",
-            "access.token.claim": "true",
             "introspection.token.claim": "true",
+            "access.token.claim": "true",
             "included.custom.audience": "http://payment"
           }
         }
@@ -1458,8 +1544,8 @@
           "config": {
             "id.token.claim": "false",
             "lightweight.claim": "false",
-            "access.token.claim": "true",
             "introspection.token.claim": "true",
+            "access.token.claim": "true",
             "included.custom.audience": "http://ticket"
           }
         }
@@ -1578,9 +1664,37 @@
           "config": {
             "id.token.claim": "false",
             "lightweight.claim": "false",
+            "introspection.token.claim": "true",
+            "access.token.claim": "true",
+            "included.custom.audience": "http://order"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e9b7666c-65fd-4f7c-8c45-cb60a510026f",
+      "name": "gateway:read",
+      "description": "OpenID Connect scope for order read access only",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "false",
+        "gui.order": "",
+        "consent.screen.text": ""
+      },
+      "protocolMappers": [
+        {
+          "id": "d78ff6cd-f5fb-4573-bbf8-1b7cb5366d3a",
+          "name": "gateway-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "false",
+            "lightweight.claim": "false",
             "access.token.claim": "true",
             "introspection.token.claim": "true",
-            "included.custom.audience": "http://order"
+            "included.custom.audience": "http://gateway"
           }
         }
       ]
