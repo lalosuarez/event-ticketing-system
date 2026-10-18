@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Ticket" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="ticket" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.eventtickets.ticket.TicketApplication" />
+    <option name="VM_PARAMETERS" value="-Xms128m -Xmx512m -XX:+UseSerialGC" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

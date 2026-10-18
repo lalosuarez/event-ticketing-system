@@ -65,9 +65,7 @@ public class GraphqlSecurityConfig {
                                     Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
                                     boolean hasAuth = authorities.stream()
                                             .anyMatch(a -> a.getAuthority().equals("gateway:read"));
-                                    boolean hasRole = authorities.stream()
-                                            .anyMatch(a -> a.getAuthority().equals("ROLE_GATEWAY_READ_ONLY"));
-                                    return (AuthorizationResult) new AuthorizationDecision(hasRole && hasAuth);
+                                    return (AuthorizationResult) new AuthorizationDecision(hasAuth);
                                 })
                                 .defaultIfEmpty(new AuthorizationDecision(false))
                         )

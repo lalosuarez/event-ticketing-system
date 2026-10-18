@@ -31,7 +31,7 @@ class OrderForUserGraphqlController {
         this.orderForUserService = orderForUserService;
     }
 
-    @PreAuthorize("(hasAuthority('order:write')) and (hasRole('ORDER_OWNER'))")
+    @PreAuthorize("hasAuthority('order:write')")
     @MutationMapping
     OrderResponse create(@Argument @Valid CreateOrderRequest createOrderRequest,
                          @AuthenticationPrincipal Jwt jwt) {
@@ -40,7 +40,7 @@ class OrderForUserGraphqlController {
         return this.orderForUserService.createForUser(createOrderRequest, userId);
     }
 
-    @PreAuthorize("(hasAuthority('order:write')) and (hasRole('ORDER_OWNER'))")
+    @PreAuthorize("hasAuthority('order:write')")
     @MutationMapping
     OrderResponse cancel(@Argument @Valid CancelOrderRequest cancelOrderRequest,
                          @AuthenticationPrincipal Jwt jwt) {
@@ -54,7 +54,7 @@ class OrderForUserGraphqlController {
      * Specify OrderResponse param so graphql knows is the parent. If you don't want to include the parent object
      * in your method signature, specify the type directly in the annotation.
      */
-    @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('order:read')")
     @QueryMapping
     Window<OrderResponse> orders(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);
@@ -67,7 +67,7 @@ class OrderForUserGraphqlController {
         return this.orderForUserService.getAllForUser(userId, limit, offset);
     }
 
-    @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('order:read')")
     @QueryMapping
     OrderResponse order(@Argument
                         @NotNull(message = "{order.get.orderId.NotNull.message}")

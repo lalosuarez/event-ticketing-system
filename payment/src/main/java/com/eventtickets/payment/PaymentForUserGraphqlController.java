@@ -24,7 +24,7 @@ class PaymentForUserGraphqlController {
         this.paymentForUserService = paymentForUserService;
     }
 
-    @PreAuthorize("(hasAuthority('payment:write')) and (hasRole('PAYMENT_OWNER'))")
+    @PreAuthorize("hasAuthority('payment:write')")
     @MutationMapping
     PaymentResponse stripePayment(@Argument @Valid StripePaymentRequest stripePaymentRequest,
                                   @AuthenticationPrincipal Jwt jwt) {

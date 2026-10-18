@@ -31,12 +31,18 @@ public class HeadersSecurityInterceptor implements WebGraphQlInterceptor {
     @Override
     public Mono<WebGraphQlResponse> intercept(WebGraphQlRequest request, Chain chain) {
         String path = request.getUri().getPath();
-        // 1. AUTOMATIC GRAPHQL BYPASS: Let GraphiQL browser assets pass through instantly
+        // 1. Bypass static resources
         if (path.startsWith("/graphiql") || path.equals("/favicon.ico")) {
             return chain.next(request);
         }
 
-        // 2. Validate Gateway Perimeter Secret
+        // 2. Bypass GraphQL Schema Introspection queries (used by GraphiQL Docs)
+        String query = request.getDocument();
+        if (query.contains("__schema")) {
+            return chain.next(request);
+        }
+
+        // 3. Validate Gateway Perimeter Secret for actual business queries
         String incomingSecret = request.getHeaders().getFirst("X-Gateway-Secret");
         if (incomingSecret == null || !incomingSecret.equals(this.gatewaySecret)) {
             logger.error("Invalid X-Gateway-Secret header");

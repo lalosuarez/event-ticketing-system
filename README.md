@@ -79,16 +79,27 @@ You can manually start each service from terminal or IDE, or run skaffold.
 skaffold dev --port-forward
 ```
 
+## Memory
+Set VM options:
+
+```shell
+export JAVA_TOOL_OPTIONS="-Xms128m -Xmx512m -XX:+UseSerialGC"
+```
+
 Keycloak: http://localhost:9091
+
+Make sure to create users for groups buyer, seller, read-only:
+- user1 - buyer
+- user2 - seller
+- user3 - buyer & seller
+- user4 - read-only
+- user5 - no groups assigned
 
 ## Securtity
 
 Get token by calling Keycloak:
 
-
 ### Public Client for gateway, ticket, order, and payment:
-
-Buyer:
 
 ```shell
 ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
@@ -96,19 +107,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:write order:write payment:write gateway:read' \
-  --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
-```
-
-Seller:
-
-```shell
-ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token' \
-  --header 'Content-Type: application/x-www-form-urlencoded' \
-  --data-urlencode 'grant_type=password' \
-  --data-urlencode 'username=user2' \
-  --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:write order:write payment:write' \
+  --data-urlencode 'scope=openid' \
   --data-urlencode 'client_id=spa-web-app' | jq -r '.access_token')
 ```
 
@@ -120,7 +119,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid ticket:write' \
+  --data-urlencode 'scope=openid' \
   --data-urlencode 'client_id=ticket-service' \
   --data-urlencode 'client_secret=aUU4cHRrMSw839jQ4FmJOgNaV26U6S4l' | jq -r '.access_token')
 ```
@@ -133,7 +132,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid order:write' \
+  --data-urlencode 'scope=openid' \
   --data-urlencode 'client_id=order-service' \
   --data-urlencode 'client_secret=7Fz9HTQo8zyyX2rkV442Geg1anASe0BU' | jq -r '.access_token')
 ```
@@ -146,7 +145,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid payment:write' \
+  --data-urlencode 'scope=openid' \
   --data-urlencode 'client_id=payment-service' \
   --data-urlencode 'client_secret=QOuxZme5d9pjrlSU2uBVK05kHAQac6UX' | jq -r '.access_token')
 ```
@@ -159,7 +158,7 @@ ACCESS_TOKEN=$(curl --location 'http://localhost:9091/realms/event-ticketing/pro
   --data-urlencode 'grant_type=password' \
   --data-urlencode 'username=user1' \
   --data-urlencode 'password=secret' \
-  --data-urlencode 'scope=openid gateway:read' \
+  --data-urlencode 'scope=openid' \
   --data-urlencode 'client_id=gateway-service' \
   --data-urlencode 'client_secret=Pd8G4vR9yOVqovsEEzOndE5Llsw9HPcW' | jq -r '.access_token')
 ```

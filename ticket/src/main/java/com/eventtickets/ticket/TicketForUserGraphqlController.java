@@ -33,7 +33,7 @@ class TicketForUserGraphqlController {
         this.ticketForUserService = ticketForUserService;
     }
 
-    @PreAuthorize("(hasAuthority('ticket:write')) and (hasRole('TICKET_OWNER'))")
+    @PreAuthorize("hasAuthority('ticket:write')")
     @MutationMapping
     TicketResponse create(@Argument @Valid CreateTicketRequest createTicketRequest,
                           @AuthenticationPrincipal Jwt jwt) {
@@ -42,7 +42,7 @@ class TicketForUserGraphqlController {
         return this.ticketForUserService.createForUser(createTicketRequest, userId);
     }
 
-    @PreAuthorize("(hasAuthority('ticket:write')) and (hasRole('TICKET_OWNER'))")
+    @PreAuthorize("hasAuthority('ticket:write')")
     @MutationMapping
     TicketResponse update(@Argument @Valid UpdateTicketRequest updateTicketRequest,
                           @AuthenticationPrincipal Jwt jwt) {
@@ -51,7 +51,7 @@ class TicketForUserGraphqlController {
         return this.ticketForUserService.updateForUser(updateTicketRequest, userId);
     }
 
-    @PreAuthorize("(hasAuthority('ticket:write') or hasAuthority('ticket:read')) and (hasRole('TICKET_OWNER') or hasRole('TICKET_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('ticket:read')")
     @QueryMapping
     TicketResponse ticket(@Argument
                           @NotNull(message = "{ticket.get.orderId.NotNull.message}")
@@ -68,7 +68,7 @@ class TicketForUserGraphqlController {
      * Specify TicketResponse param so graphql knows is the parent. If you don't want to include the parent object
      * in your method signature, specify the type directly in the annotation.
      */
-    @PreAuthorize("(hasAuthority('ticket:write') or hasAuthority('ticket:read')) and (hasRole('TICKET_OWNER') or hasRole('TICKET_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('ticket:read')")
     @QueryMapping
     Window<TicketResponse> ticketsForPurchase(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);
@@ -81,7 +81,7 @@ class TicketForUserGraphqlController {
     /**
      * Uses cursor-based pagination
      */
-    @PreAuthorize("(hasAuthority('ticket:write') or hasAuthority('ticket:read')) and (hasRole('TICKET_OWNER') or hasRole('TICKET_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('ticket:read')")
     @QueryMapping
     Window<TicketResponse> tickets(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);

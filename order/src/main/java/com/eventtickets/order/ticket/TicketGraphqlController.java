@@ -24,7 +24,7 @@ class TicketGraphqlController {
      * This method will be called for any {@link OrderResponse} returned in
      * {@link com.eventtickets.order.OrderForUserGraphqlController} and takes care of N+1 issue
      */
-    @PreAuthorize("(hasAuthority('order:write') or hasAuthority('order:read')) and (hasRole('ORDER_OWNER') or hasRole('ORDER_READ_ONLY'))")
+    @PreAuthorize("hasAuthority('order:read')")
     @BatchMapping
     public Map<OrderResponse, TicketResponse> ticket(List<OrderResponse> orderResponses) {
         logger.info("Received request to get ticket for {} orders", orderResponses.size());
