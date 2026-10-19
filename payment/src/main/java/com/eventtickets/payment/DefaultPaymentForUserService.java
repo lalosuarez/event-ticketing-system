@@ -1,6 +1,7 @@
 package com.eventtickets.payment;
 
 import com.eventtickets.payment.exception.InvalidOrderException;
+import com.eventtickets.payment.exception.PaymentException;
 import com.eventtickets.payment.jdbc.OrderEntity;
 import com.eventtickets.payment.jdbc.OrderRepository;
 import com.eventtickets.payment.jdbc.OrderStatus;
@@ -9,6 +10,7 @@ import com.eventtickets.payment.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,7 @@ class DefaultPaymentForUserService implements PaymentForUserService {
     }
 
     @Override
-    @Transactional
+    //@Transactional
     public PaymentResponse paymentForUser(PaymentRequest paymentRequest, PaymentProcessorType paymentProcessorType,
                                           String userId) {
         logger.debug("Creating payment {} for {}", paymentRequest, paymentProcessorType);
@@ -49,11 +51,19 @@ class DefaultPaymentForUserService implements PaymentForUserService {
             throw new InvalidOrderException("Order has been already paid");
         }
         // Proceess payment (by calling 3rd party, stripe, apple pay, etc)
-        // and Create charge record
+        // and Create charge record.
+        // IMPORTANT: Since there is an integration with a 3rd party, DO NOT mark this method as transactional
         var charge = getPaymentService(paymentProcessorType).process(paymentRequest, orderEntity.amount(), userId);
 
-        // Emit payment:created event
-        this.paymentCreatedProducer.send(toPaymentCreatedEvent(charge, orderEntity));
+        // Emit payment.created event
+        try {
+            // TODO: implement outbox pattern or something, if kafka is down the event won't be sent but stripe already has the payment
+            //  and downstream services won't process event to complete order
+            this.paymentCreatedProducer.send(toPaymentCreatedEvent(charge, orderEntity));
+        } catch (KafkaException ex) {
+            logger.error("Could not send payment created event", ex);
+            throw new PaymentException("Could not pay for order, try again later");
+        }
 
         return new PaymentResponse(PaymentStatus.PROCESSED, "Payment processed");
     }
@@ -62,9 +72,9 @@ class DefaultPaymentForUserService implements PaymentForUserService {
         var paymentService = this.paymentServiceStrategy.get(
                 paymentProcessorType.name().toLowerCase() + "PaymentProcessor");
         if (paymentService == null) {
-            logger.error(String.format("Invalid payment processor for %s", paymentProcessorType));
-            // TODO: Implement custom exception
-            throw new IllegalArgumentException("Invalid payment processor");
+            var errorMessage = String.format("Invalid payment processor for %s", paymentProcessorType);
+            logger.error(errorMessage);
+            throw new PaymentException("Invalid payment processor");
         }
         return paymentService;
     }

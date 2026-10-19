@@ -23,6 +23,11 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
         var orderEntity = this.orderRepository.findById(orderCancelledEvent.id())
                 .orElseThrow(() -> new InvalidOrderException("Order not found " + orderCancelledEvent.id()));
 
+        if (OrderStatus.CANCELLED.equals(orderEntity.status())) {
+            logger.warn("Event already processed {}", orderCancelledEvent);
+            return;
+        }
+
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.orderRepository.save(orderEntity.with(OrderStatus.CANCELLED,
                 orderCancelledEvent.version() - 1));

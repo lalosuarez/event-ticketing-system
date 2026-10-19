@@ -53,7 +53,7 @@ class DefaultOrderForUserServiceTest {
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
-            var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"));
+            var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"), "user-1");
             var mockSavedEntity = new OrderEntity(
                     "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15))
                     .withId(expectedId);
@@ -96,7 +96,7 @@ class DefaultOrderForUserServiceTest {
 
             // Assert
             assertThat(resultWindow).hasSize(2);
-            assertThat(resultWindow.getContent().getFirst().ticketId()).isEqualTo("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
+            assertThat(resultWindow.getContent().getFirst().ticket().id()).isEqualTo("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             verify(orderForUserRepository).findAllByUserId(userId, 2, 0L);
         }
 

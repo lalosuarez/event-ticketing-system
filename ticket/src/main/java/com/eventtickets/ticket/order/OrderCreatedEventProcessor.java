@@ -31,7 +31,10 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
     public void process(OrderCreatedEvent orderCreatedEvent) {
         var ticketEntity = this.ticketRepository.findById(orderCreatedEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderCreatedEvent.ticketId()));
-
+        if (orderCreatedEvent.id().equals(ticketEntity.orderId())) {
+            logger.warn("Event already processed {}", orderCreatedEvent);
+            return;
+        }
         var saved = this.ticketRepository.save(ticketEntity.withOrderId(orderCreatedEvent.id()));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
         logger.info("Ticket {} has been reserved with orderId {}", saved.id(), saved.orderId());

@@ -14,7 +14,7 @@ public class KafkaTopicsConfiguration {
     // The admin client uses an idempotent "create if not exists" call under the hood, so if greetings already exists,
     // the broker just shrugs and moves on.
     @Bean
-    NewTopic orderCreatedTopic() {
+    NewTopic paymentCreatedTopic() {
         return TopicBuilder.name(PAYMENT_CREATED_TOPIC)
                 .partitions(2)
                 .replicas(1)

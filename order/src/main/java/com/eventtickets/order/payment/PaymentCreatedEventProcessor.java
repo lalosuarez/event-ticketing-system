@@ -37,7 +37,7 @@ class PaymentCreatedEventProcessor implements EventProcessor<PaymentCreatedEvent
             throw new InvalidOrderException("Invalid order");
         }
         if (OrderStatus.COMPLETED.equals(entity.status())) {
-            logger.warn("Order {} is already marked as completed", entity);
+            logger.warn("Event already processed {}", paymentCreatedEvent);
             return;
         }
         var saved = this.orderForUserRepository.save(entity.with(OrderStatus.COMPLETED));

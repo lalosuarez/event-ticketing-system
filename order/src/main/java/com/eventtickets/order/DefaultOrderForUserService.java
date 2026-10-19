@@ -45,17 +45,20 @@ class DefaultOrderForUserService implements OrderForUserService {
     public OrderResponse createForUser(CreateOrderRequest createOrderRequest, String userId) {
         logger.debug("Creating Order {}", createOrderRequest);
         var ticketId = UUID.fromString(createOrderRequest.ticketId());
-        var ticketEntity = this.ticketRepository.findById(ticketId)
+        // Thread-A acquires an exclusive DB lock on this specific Ticket row.
+        // If Thread-B tries to fetch this same ticket, PostgreSQL will pause Thread-B right here
+        // until Thread-A's transaction finishes (either commits or rolls back).
+        var ticketEntity = this.ticketRepository.findByIdForPurchase(ticketId, userId)
                 .orElseThrow(() -> {
                     logger.error("Ticket {} not found", ticketId);
                     return new InvalidTicketException();
                 });
         // Checking if ticket is not reserved.
-        var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketId,
+        var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketEntity.id(),
                 List.of(OrderStatus.COMPLETED, OrderStatus.PENDING));
         if (orderWithTicket != null) {
-            logger.error("Ticket id {} already reserved", ticketId);
-            throw new InvalidTicketException();
+            logger.error("Ticket id {} already reserved", ticketEntity.id());
+            throw new InvalidTicketException("Ticket already reserved");
         }
         var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, userId));
         try {

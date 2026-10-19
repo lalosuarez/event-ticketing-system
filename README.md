@@ -69,6 +69,34 @@ docker compose -f infra/compose.yaml --env-file infra/.env down
 
 # Or to delete volumes
 docker compose -f infra/compose.yaml --env-file infra/.env down -v
+
+# Or stop just one service
+docker compose -f infra/compose.yaml --env-file infra/.env stop kafka
+```
+
+```shell
+docker exec -i kafka /opt/kafka/bin/kafka-console-consumer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic ticket.created \
+  --from-beginning \
+  --property print.timestamp=true \
+  --property print.key=true \
+  --property print.partition=true \
+  --property print.offset=true
+
+printf '__TypeId__:com.eventtickets.ticket.TicketCreatedEvent\t{"id":"01a144c7-2d68-7c26-9ae0-0a7a5ecfb1c4","title":"Concert 1","price":100.00,"userId":"d50baa03-4468-4676-a797-6f61e0524e99","version":0}\n' | \
+  docker exec -i kafka /opt/kafka/bin/kafka-console-producer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic ticket.created \
+  --reader-property parse.headers=true
+
+docker exec -i kafka /opt/kafka/bin/kafka-consumer-groups.sh \
+  --bootstrap-server localhost:9092 \
+  --group order \
+  --topic ticket.created \
+  --reset-offsets \
+  --to-offset 7 \
+  --execute
 ```
 
 You can manually start each service from terminal or IDE, or run skaffold.
@@ -94,6 +122,7 @@ Make sure to create users for groups buyer, seller, read-only:
 - user3 - buyer & seller
 - user4 - read-only
 - user5 - no groups assigned
+- user6 - buyer & seller
 
 ## Securtity
 

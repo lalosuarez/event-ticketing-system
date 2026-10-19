@@ -19,6 +19,11 @@ class TicketCreatedEventProcessor implements EventProcessor<TicketCreatedEvent> 
 
     @Override
     public void process(TicketCreatedEvent ticketCreatedEvent) {
+        var exists = this.ticketRepository.findById(ticketCreatedEvent.id()).orElse(null);
+        if (exists != null) {
+            logger.warn("Event already processed {}", ticketCreatedEvent);
+            return;
+        }
         TicketEntity ticketEntity = toTicketEntity(ticketCreatedEvent);
         var saved = this.ticketRepository.save(ticketEntity);
         logger.info("Ticket created in DB {}", saved);
@@ -28,7 +33,8 @@ class TicketCreatedEventProcessor implements EventProcessor<TicketCreatedEvent> 
         return new TicketEntity(
                 ticketCreatedEvent.id(),
                 ticketCreatedEvent.title(),
-                ticketCreatedEvent.price()
+                ticketCreatedEvent.price(),
+                ticketCreatedEvent.userId()
         );
     }
 }

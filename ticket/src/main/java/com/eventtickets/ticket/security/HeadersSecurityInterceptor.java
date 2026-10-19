@@ -9,7 +9,9 @@ import org.springframework.graphql.execution.ErrorType;
 import org.springframework.graphql.server.WebGraphQlInterceptor;
 import org.springframework.graphql.server.WebGraphQlRequest;
 import org.springframework.graphql.server.WebGraphQlResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -46,7 +48,9 @@ public class HeadersSecurityInterceptor implements WebGraphQlInterceptor {
         String incomingSecret = request.getHeaders().getFirst("X-Gateway-Secret");
         if (incomingSecret == null || !incomingSecret.equals(this.gatewaySecret)) {
             logger.error("Invalid X-Gateway-Secret header");
-            return handleEarlyFailure(request, chain, "Forbidden", ErrorType.FORBIDDEN);
+            // return handleEarlyFailure(request, chain, "Forbidden", ErrorType.FORBIDDEN);
+            // TODO: Fix response payload
+            return Mono.error(new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid or missing gateway secret"));
         }
 
         // Advance to the query resolvers, writing the identity token context safely into WebFlux/Reactive paths

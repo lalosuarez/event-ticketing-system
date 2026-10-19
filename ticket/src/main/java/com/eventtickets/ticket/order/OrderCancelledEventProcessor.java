@@ -31,7 +31,10 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
     public void process(OrderCancelledEvent orderCancelledEvent) {
         var ticketEntity = this.ticketRepository.findById(orderCancelledEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderCancelledEvent.ticketId()));
-
+        if (ticketEntity.orderId() == null) {
+            logger.warn("Event already processed {}", orderCancelledEvent);
+            return;
+        }
         // Removes the orderId because the ticket is no longer reserved
         var saved = this.ticketRepository.save(ticketEntity.withOrderId(null));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));

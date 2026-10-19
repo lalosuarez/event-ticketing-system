@@ -23,6 +23,11 @@ class OrderCompletedEventProcessor implements EventProcessor<OrderCompletedEvent
         var orderEntity = this.orderRepository.findById(orderCompletedEvent.id())
                 .orElseThrow(() -> new InvalidOrderException("Order not found " + orderCompletedEvent.id()));
 
+        if (OrderStatus.COMPLETED.equals(orderEntity.status())) {
+            logger.warn("Event already processed {}", orderCompletedEvent);
+            return;
+        }
+
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.orderRepository.save(orderEntity.with(OrderStatus.COMPLETED,
                 orderCompletedEvent.version() - 1));

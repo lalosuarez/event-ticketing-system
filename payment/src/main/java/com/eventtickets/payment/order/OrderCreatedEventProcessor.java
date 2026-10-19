@@ -20,6 +20,11 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
 
     @Override
     public void process(OrderCreatedEvent orderCreatedEvent) {
+        var exists = this.orderRepository.findById(orderCreatedEvent.id()).orElse(null);
+        if (exists != null) {
+            logger.warn("Event already processed {}", orderCreatedEvent);
+            return;
+        }
         var entity = toOrderEntity(orderCreatedEvent);
         var saved = this.orderRepository.save(entity);
         logger.info("Order created in DB {}", saved);
