@@ -4,6 +4,7 @@ import com.eventtickets.ticket.TicketUpdatedEvent;
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.jdbc.TicketEntity;
 import com.eventtickets.ticket.jdbc.TicketRepository;
+import com.eventtickets.ticket.jdbc.TicketStatus;
 import com.eventtickets.ticket.messaging.Event;
 import com.eventtickets.ticket.messaging.EventProcessor;
 import com.eventtickets.ticket.messaging.EventProducer;
@@ -35,7 +36,7 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
             logger.warn("Event already processed {}", orderCreatedEvent);
             return;
         }
-        var saved = this.ticketRepository.save(ticketEntity.withOrderId(orderCreatedEvent.id()));
+        var saved = this.ticketRepository.save(ticketEntity.with(orderCreatedEvent.id(), TicketStatus.RESERVED));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
         logger.info("Ticket {} has been reserved with orderId {}", saved.id(), saved.orderId());
     }
@@ -45,7 +46,9 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName(),
                 ticketEntity.version()
         );
     }

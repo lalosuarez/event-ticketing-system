@@ -1,6 +1,7 @@
 scalar DateTime
 scalar DateTimeUtc
 scalar DateTimeLocal
+scalar BigDecimal
 
 type Query {
     # Get a list of user orders with cursor-based pagination
@@ -28,12 +29,19 @@ input CancelOrderRequest {
 
 type OrderResponse {
     id: ID!
-    userId: ID!
+    ticketId: ID!,
+    ticketTitle: String!
+    quantity: Int
+    totalAmount: BigDecimal!
+    # Ref to the original ticket not the snapshot
     ticket: TicketResponse!
+    sellerId: ID!
+    buyerId: ID!
+    buyerFirstName: String!
+    buyerLastName: String!
     status: String!
-    expiresAt: DateTimeLocal!
-    dateTimeUtc: DateTimeUtc
-    dateTimeLocal: DateTimeLocal
+    createdAtUtc: DateTimeUtc
+    createdAtLocal: DateTimeLocal
 }
 
 type TicketResponse {

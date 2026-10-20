@@ -31,7 +31,9 @@ input UpdateTicketRequest {
 type TicketResponse {
     id: ID!
     title: String!
-    price: String!
-    userId: ID!
-    orderId: ID
+    price: BigDecimal!
+    status: String!
+    sellerId: ID!
+    sellerFirstName: String!
+    sellerLastName: String!
 }

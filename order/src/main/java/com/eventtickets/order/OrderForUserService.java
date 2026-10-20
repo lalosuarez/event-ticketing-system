@@ -7,7 +7,7 @@ import org.springframework.data.domain.Window;
  */
 interface OrderForUserService {
 
-    OrderResponse createForUser(CreateOrderRequest createOrderRequest, String userId);
+    OrderResponse createForUser(CreateOrderRequest createOrderRequest, User user);
 
     Window<OrderResponse> getAllForUser(String userId, Integer limit, Long offset);
 

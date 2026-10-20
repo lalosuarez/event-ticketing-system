@@ -4,9 +4,9 @@ import org.springframework.data.domain.Window;
 
 public interface TicketForUserService {
 
-    TicketResponse createForUser(CreateTicketRequest createTicketRequest, String userId);
+    TicketResponse createForUser(CreateTicketRequest createTicketRequest, User user);
 
-    TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest, String userId);
+    TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest, User user);
 
     TicketResponse getByIdForUser(String id, String userId);
 

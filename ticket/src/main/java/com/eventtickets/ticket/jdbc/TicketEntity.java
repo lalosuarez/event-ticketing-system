@@ -14,8 +14,14 @@ public record TicketEntity(
         UUID id,
         String title,
         BigDecimal price,
-        String userId,
+        TicketStatus status,
         UUID orderId,
+        // Seller Information
+        String sellerId,
+        String sellerEmail,
+        String sellerFirstName,
+        String sellerLastName,
+        // Audit & Concurrency
         @Version
         Integer version,
         String createdBy,
@@ -23,18 +29,29 @@ public record TicketEntity(
         String updatedBy,
         OffsetDateTime updatedAt
 ) {
-    public TicketEntity(String title, BigDecimal price, String userId) {
-        this(null, title, price, userId, null, null,
-                userId, OffsetDateTime.now(), userId, OffsetDateTime.now());
+    public TicketEntity(String title, BigDecimal price,
+                        String sellerId, String sellerEmail, String sellerFirstName, String sellerLastName) {
+        this(null, title, price, TicketStatus.AVAILABLE, null,
+                sellerId, sellerEmail, sellerFirstName, sellerLastName,
+                null, sellerId, OffsetDateTime.now(), sellerId, OffsetDateTime.now());
     }
 
-    public TicketEntity with(String title, BigDecimal price, String userId) {
-        return new TicketEntity(id, title, price, this.userId, null, this.version,
-                this.createdBy, this.createdAt, userId, OffsetDateTime.now());
+    public TicketEntity with(String title, BigDecimal price,
+                             String sellerId, String sellerEmail, String sellerFirstName, String sellerLastName) {
+        return new TicketEntity(this.id, title, price, TicketStatus.AVAILABLE, null,
+                sellerId, sellerEmail, sellerFirstName, sellerLastName,
+                this.version, this.createdBy, this.createdAt, sellerId, OffsetDateTime.now());
     }
 
-    public TicketEntity withOrderId(UUID orderId) {
-        return new TicketEntity(id, this.title, this.price, this.userId, orderId, this.version,
-                this.createdBy, this.createdAt, "system-event", OffsetDateTime.now());
+    public TicketEntity with(UUID orderId, TicketStatus status) {
+        return new TicketEntity(this.id, this.title, this.price, status, orderId,
+                this.sellerId, this.sellerEmail, this.sellerFirstName, this.sellerLastName,
+                this.version, this.createdBy, this.createdAt, "system-event", OffsetDateTime.now());
+    }
+
+    public TicketEntity with(TicketStatus status) {
+        return new TicketEntity(this.id, this.title, this.price, status, this.orderId,
+                this.sellerId, this.sellerEmail, this.sellerFirstName, this.sellerLastName,
+                this.version, this.createdBy, this.createdAt, "system-event", OffsetDateTime.now());
     }
 }

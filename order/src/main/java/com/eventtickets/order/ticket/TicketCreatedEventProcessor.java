@@ -1,7 +1,7 @@
 package com.eventtickets.order.ticket;
 
-import com.eventtickets.order.jdbc.TicketEntity;
-import com.eventtickets.order.jdbc.TicketRepository;
+import com.eventtickets.order.ticket.jdbc.TicketEntity;
+import com.eventtickets.order.ticket.jdbc.TicketRepository;
 import com.eventtickets.order.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,9 @@ class TicketCreatedEventProcessor implements EventProcessor<TicketCreatedEvent> 
                 ticketCreatedEvent.id(),
                 ticketCreatedEvent.title(),
                 ticketCreatedEvent.price(),
-                ticketCreatedEvent.userId()
+                ticketCreatedEvent.sellerId(),
+                ticketCreatedEvent.sellerFirstName(),
+                ticketCreatedEvent.sellerLastName()
         );
     }
 }

@@ -5,6 +5,7 @@ import com.eventtickets.ticket.exception.TicketException;
 import com.eventtickets.ticket.exception.TicketNotFoundException;
 import com.eventtickets.ticket.jdbc.TicketEntity;
 import com.eventtickets.ticket.jdbc.TicketRepository;
+import com.eventtickets.ticket.jdbc.TicketStatus;
 import com.eventtickets.ticket.messaging.Event;
 import com.eventtickets.ticket.messaging.EventProducer;
 import org.slf4j.Logger;
@@ -37,10 +38,10 @@ class DefaultTicketForUserService implements TicketForUserService {
 
     @Override
     @Transactional
-    public TicketResponse createForUser(CreateTicketRequest createTicketRequest, String userId) {
+    public TicketResponse createForUser(CreateTicketRequest createTicketRequest, User user) {
         logger.debug("Creating Ticket {}", createTicketRequest);
         // Don't add validation by title
-        var ticketEntity = this.ticketRepository.save(toTicketEntity(createTicketRequest, userId));
+        var ticketEntity = this.ticketRepository.save(toTicketEntity(createTicketRequest, user));
         try {
             this.ticketCreatedProducer.send(toTicketCreatedEvent(ticketEntity));
         } catch (KafkaException ex) {
@@ -52,16 +53,19 @@ class DefaultTicketForUserService implements TicketForUserService {
 
     @Override
     @Transactional
-    public TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest, String userId) {
-        var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(updateTicketRequest.id()), userId);
+    public TicketResponse updateForUser(UpdateTicketRequest updateTicketRequest, User user) {
+        var entity = this.ticketRepository.findOneByIdAndUserId(UUID.fromString(updateTicketRequest.id()), user.id());
         if (entity == null) {
+            logger.error("Ticket not found for id {} and user {}", updateTicketRequest.id(), user.id());
             throw new InvalidTicketException("Invalid ticket");
         }
-        if (entity.orderId() != null) {
-            throw new InvalidTicketException("Could not update. Ticket has been purchased");
+        if (!TicketStatus.AVAILABLE.equals(entity.status())) {
+            logger.error("Invalid ticket status {} for id {}", entity.status(), entity.id());
+            throw new InvalidTicketException("Could not update. Ticket has been reserved or sold");
         }
         var ticketEntity = this.ticketRepository.save(
-                entity.with(updateTicketRequest.title(), updateTicketRequest.price(), userId));
+                entity.with(updateTicketRequest.title(), updateTicketRequest.price(),
+                        user.id(), user.email(), user.firstName(), user.lastName()));
         try {
             this.ticketUpdatedProducer.send(toTicketUpdatedEvent(ticketEntity));
         } catch (KafkaException ex) {
@@ -95,11 +99,14 @@ class DefaultTicketForUserService implements TicketForUserService {
         return results.map(this::toTicketResponse);
     }
 
-    private TicketEntity toTicketEntity(CreateTicketRequest createTicketRequest, String userId) {
+    private TicketEntity toTicketEntity(CreateTicketRequest createTicketRequest, User user) {
         return new TicketEntity(
                 createTicketRequest.title(),
                 createTicketRequest.price(),
-                userId
+                user.id(),
+                user.email(),
+                user.firstName(),
+                user.lastName()
         );
     }
 
@@ -108,8 +115,10 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id().toString(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId(),
-                ticketEntity.orderId() == null ? null : ticketEntity.orderId().toString()
+                ticketEntity.status().name(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName()
         );
     }
 
@@ -118,7 +127,9 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName(),
                 ticketEntity.version()
         );
     }
@@ -128,7 +139,9 @@ class DefaultTicketForUserService implements TicketForUserService {
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName(),
                 ticketEntity.version()
         );
     }

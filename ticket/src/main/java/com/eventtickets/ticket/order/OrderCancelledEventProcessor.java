@@ -4,6 +4,7 @@ import com.eventtickets.ticket.TicketUpdatedEvent;
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.jdbc.TicketEntity;
 import com.eventtickets.ticket.jdbc.TicketRepository;
+import com.eventtickets.ticket.jdbc.TicketStatus;
 import com.eventtickets.ticket.messaging.Event;
 import com.eventtickets.ticket.messaging.EventProcessor;
 import com.eventtickets.ticket.messaging.EventProducer;
@@ -36,7 +37,7 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
             return;
         }
         // Removes the orderId because the ticket is no longer reserved
-        var saved = this.ticketRepository.save(ticketEntity.withOrderId(null));
+        var saved = this.ticketRepository.save(ticketEntity.with(null, TicketStatus.AVAILABLE));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
         logger.info("Ticket {} is no longer reserved", saved.id());
     }
@@ -46,7 +47,9 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
                 ticketEntity.id(),
                 ticketEntity.title(),
                 ticketEntity.price(),
-                ticketEntity.userId(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName(),
                 ticketEntity.version()
         );
     }

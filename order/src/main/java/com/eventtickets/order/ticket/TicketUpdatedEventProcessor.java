@@ -1,8 +1,8 @@
 package com.eventtickets.order.ticket;
 
 import com.eventtickets.order.exception.InvalidTicketException;
-import com.eventtickets.order.jdbc.TicketEntity;
-import com.eventtickets.order.jdbc.TicketRepository;
+import com.eventtickets.order.ticket.jdbc.TicketEntity;
+import com.eventtickets.order.ticket.jdbc.TicketRepository;
 import com.eventtickets.order.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +24,15 @@ class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> 
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + ticketUpdatedEvent.id()));
 
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
-        var saved = this.ticketRepository.save(ticketEntity.with(ticketUpdatedEvent.title(),
-                ticketUpdatedEvent.price(), ticketUpdatedEvent.userId(), ticketUpdatedEvent.version() - 1));
+        var saved = this.ticketRepository.save(ticketEntity.with(
+                        ticketUpdatedEvent.title(),
+                        ticketUpdatedEvent.price(),
+                        ticketUpdatedEvent.sellerId(),
+                        ticketUpdatedEvent.sellerFirstName(),
+                        ticketUpdatedEvent.sellerLastName(),
+                        ticketUpdatedEvent.version() - 1
+                )
+        );
         logger.info("Ticket updated in DB {}", saved);
     }
 
@@ -34,7 +41,9 @@ class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> 
                 ticketUpdatedEvent.id(),
                 ticketUpdatedEvent.title(),
                 ticketUpdatedEvent.price(),
-                ticketUpdatedEvent.userId()
+                ticketUpdatedEvent.sellerId(),
+                ticketUpdatedEvent.sellerFirstName(),
+                ticketUpdatedEvent.sellerLastName()
         );
     }
 }

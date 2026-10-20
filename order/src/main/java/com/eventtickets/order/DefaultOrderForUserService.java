@@ -8,6 +8,8 @@ import com.eventtickets.order.jdbc.*;
 import com.eventtickets.order.messaging.Event;
 import com.eventtickets.order.messaging.EventProducer;
 import com.eventtickets.order.ticket.TicketResponse;
+import com.eventtickets.order.ticket.jdbc.TicketEntity;
+import com.eventtickets.order.ticket.jdbc.TicketRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +20,6 @@ import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,13 +43,13 @@ class DefaultOrderForUserService implements OrderForUserService {
 
     @Override
     @Transactional
-    public OrderResponse createForUser(CreateOrderRequest createOrderRequest, String userId) {
+    public OrderResponse createForUser(CreateOrderRequest createOrderRequest, User user) {
         logger.debug("Creating Order {}", createOrderRequest);
         var ticketId = UUID.fromString(createOrderRequest.ticketId());
         // Thread-A acquires an exclusive DB lock on this specific Ticket row.
         // If Thread-B tries to fetch this same ticket, PostgreSQL will pause Thread-B right here
         // until Thread-A's transaction finishes (either commits or rolls back).
-        var ticketEntity = this.ticketRepository.findByIdForPurchase(ticketId, userId)
+        var ticketEntity = this.ticketRepository.findByIdForPurchase(ticketId, user.id())
                 .orElseThrow(() -> {
                     logger.error("Ticket {} not found", ticketId);
                     return new InvalidTicketException();
@@ -57,10 +58,10 @@ class DefaultOrderForUserService implements OrderForUserService {
         var orderWithTicket = this.orderForUserRepository.findByTicketIdAndStatuses(ticketEntity.id(),
                 List.of(OrderStatus.COMPLETED, OrderStatus.PENDING));
         if (orderWithTicket != null) {
-            logger.error("Ticket id {} already reserved", ticketEntity.id());
-            throw new InvalidTicketException("Ticket already reserved");
+            logger.error("Ticket id {} has been reserved or sold", ticketEntity.id());
+            throw new InvalidTicketException("Ticket has been reserved or sold");
         }
-        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, userId));
+        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, ticketEntity, user));
         try {
             this.orderCreatedProducer.send(toOrderCreatedEvent(orderEntity, ticketEntity));
         } catch (KafkaException ex) {
@@ -120,26 +121,46 @@ class DefaultOrderForUserService implements OrderForUserService {
         // This is important to set, otherwise methods in OrderForUserGraphqlController to get orders will fail
         var ticketResponse = new TicketResponse(orderEntity.ticketId().getId().toString(), null, null);
 
-        return new OrderResponse(orderEntity.id().toString(), orderEntity.userId(),
-                ticketResponse, orderEntity.status().name(), orderEntity.expiresAt(), orderEntity.createdAt());
+        return new OrderResponse(
+                orderEntity.id().toString(),
+                orderEntity.ticketId().getId().toString(),
+                orderEntity.ticketTitle(),
+                orderEntity.quantity(),
+                orderEntity.totalAmount(),
+                ticketResponse,
+                orderEntity.sellerId(),
+                orderEntity.buyerId(),
+                orderEntity.buyerFirstName(),
+                orderEntity.buyerLastName(),
+                orderEntity.status().name(),
+                orderEntity.createdAt()
+        );
     }
 
-    private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest, String userId) {
+    private OrderEntity toOrderEntity(CreateOrderRequest createOrderRequest,
+                                      TicketEntity ticketEntity,
+                                      User user) {
         if (createOrderRequest == null) {
             return null;
         }
         return new OrderEntity(
-                userId,
                 AggregateReference.to(UUID.fromString(createOrderRequest.ticketId())),
-                OrderStatus.PENDING,
-                OffsetDateTime.now().plusMinutes(15)
+                ticketEntity.title(),
+                ticketEntity.price(),
+                ticketEntity.sellerId(),
+                ticketEntity.sellerFirstName(),
+                ticketEntity.sellerLastName(),
+                user.id(),
+                user.firstName(),
+                user.lastName(),
+                OrderStatus.PENDING
         );
     }
 
     private OrderCreatedEvent toOrderCreatedEvent(OrderEntity orderEntity, TicketEntity ticketEntity) {
         return new OrderCreatedEvent(
                 orderEntity.id(),
-                orderEntity.userId(),
+                orderEntity.buyerId(),
                 ticketEntity.id(),
                 ticketEntity.price(),
                 orderEntity.status(),

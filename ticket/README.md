@@ -65,7 +65,8 @@ query GetTicketsForPurchase {
         id
         title
         price
-        userId
+        sellerId,
+        sellerFirstName
       }
     }
     pageInfo {

@@ -2,6 +2,8 @@ package com.eventtickets.order;
 
 import com.eventtickets.order.exception.OrderNotFoundException;
 import com.eventtickets.order.jdbc.*;
+import com.eventtickets.order.ticket.jdbc.TicketEntity;
+import com.eventtickets.order.ticket.jdbc.TicketRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,7 +55,8 @@ class DefaultOrderForUserServiceTest {
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
-            var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"), "user-1");
+            var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"),
+                    "user-1", "user-first-name", "user-last-name");
             var mockSavedEntity = new OrderEntity(
                     "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15))
                     .withId(expectedId);

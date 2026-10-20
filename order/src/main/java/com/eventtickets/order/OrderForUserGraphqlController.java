@@ -35,18 +35,18 @@ class OrderForUserGraphqlController {
     @MutationMapping
     OrderResponse create(@Argument @Valid CreateOrderRequest createOrderRequest,
                          @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to create order {} for user {}", createOrderRequest, userId);
-        return this.orderForUserService.createForUser(createOrderRequest, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to create order {} for user {}", createOrderRequest, user.id());
+        return this.orderForUserService.createForUser(createOrderRequest, user);
     }
 
     @PreAuthorize("hasAuthority('order:write')")
     @MutationMapping
     OrderResponse cancel(@Argument @Valid CancelOrderRequest cancelOrderRequest,
                          @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to cancel order {} for user {}", cancelOrderRequest, userId);
-        return this.orderForUserService.cancelForUser(cancelOrderRequest, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to cancel order {} for user {}", cancelOrderRequest, user.id());
+        return this.orderForUserService.cancelForUser(cancelOrderRequest, user.id());
     }
 
     /**
@@ -62,9 +62,9 @@ class OrderForUserGraphqlController {
                 .filter(pos -> pos instanceof OffsetScrollPosition)
                 .map(pos -> ((OffsetScrollPosition) pos).getOffset())
                 .orElse(0L);
-        var userId = jwt.getSubject();
-        logger.info("Received request to query orders with limit {}, offset {} for user {}", limit, offset, userId);
-        return this.orderForUserService.getAllForUser(userId, limit, offset);
+        var user = toUser(jwt);
+        logger.info("Received request to query orders with limit {}, offset {} for user {}", limit, offset, user.id());
+        return this.orderForUserService.getAllForUser(user.id(), limit, offset);
     }
 
     @PreAuthorize("hasAuthority('order:read')")
@@ -74,8 +74,17 @@ class OrderForUserGraphqlController {
                         @Size(max = 36, min = 36, message = "{order.get.orderId.Size.message}")
                         String id,
                         @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to query order {} for user {}", id, userId);
-        return this.orderForUserService.getByIdForUser(id, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to query order {} for user {}", id, user.id());
+        return this.orderForUserService.getByIdForUser(id, user.id());
+    }
+
+    private User toUser(Jwt jwt) {
+        return new User(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                jwt.getClaimAsString("given_name"),
+                jwt.getClaimAsString("family_name")
+        );
     }
 }

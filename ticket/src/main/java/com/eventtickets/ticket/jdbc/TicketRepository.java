@@ -8,13 +8,18 @@ import java.util.UUID;
 
 public interface TicketRepository extends ListCrudRepository<TicketEntity, UUID> {
 
+    @Query("""
+            SELECT t.* FROM ticketing.ticket t
+            WHERE t.id = :id AND t.seller_id = :userId
+            LIMIT 1
+            """)
     TicketEntity findOneByIdAndUserId(UUID id, String userId);
 
     // For cursor-based pagination
     @Query("""
             SELECT t.* FROM ticketing.ticket t
-            WHERE t.user_id != :userId
-            AND t.order_id IS NULL
+            WHERE t.seller_id != :userId
+            AND t.status = 'AVAILABLE'
             ORDER BY t.created_at DESC
             LIMIT :limit OFFSET :offset
             """)
@@ -22,7 +27,7 @@ public interface TicketRepository extends ListCrudRepository<TicketEntity, UUID>
 
     @Query("""
             SELECT t.* FROM ticketing.ticket t
-            WHERE t.user_id = :userId
+            WHERE t.seller_id = :userId
             ORDER BY t.created_at DESC
             LIMIT :limit OFFSET :offset
             """)

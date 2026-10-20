@@ -16,17 +16,17 @@ public class GatewayConfiguration {
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 // Ticket Service - HTTP GraphQL (excluding WS upgrades)
-                .route("ticket-service-http", r -> r.path("/ticket")
+                .route("ticket-service-http", r -> r.path("/ticket/graphql")
                         .filters(f -> f.setPath("/graphql"))
                         .uri("lb://ticket-service"))
 
                 // Order Service - Standard HTTP
-                .route("order-service-http", r -> r.path("/order")
+                .route("order-service-http", r -> r.path("/order/graphql")
                         .filters(f -> f.setPath("/graphql"))
                         .uri("lb://order-service"))
 
                 // Payment Service - Standard HTTP
-                .route("payment-service-http", r -> r.path("/payment")
+                .route("payment-service-http", r -> r.path("/payment/graphql")
                         .filters(f -> f.setPath("/graphql"))
                         .uri("lb://payment-service"))
 

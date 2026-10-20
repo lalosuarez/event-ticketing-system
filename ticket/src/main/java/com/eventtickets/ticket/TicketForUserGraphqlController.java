@@ -37,18 +37,18 @@ class TicketForUserGraphqlController {
     @MutationMapping
     TicketResponse create(@Argument @Valid CreateTicketRequest createTicketRequest,
                           @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to create ticket {} for user {}", createTicketRequest, userId);
-        return this.ticketForUserService.createForUser(createTicketRequest, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to create ticket {} for user {}", createTicketRequest, user.id());
+        return this.ticketForUserService.createForUser(createTicketRequest, user);
     }
 
     @PreAuthorize("hasAuthority('ticket:write')")
     @MutationMapping
     TicketResponse update(@Argument @Valid UpdateTicketRequest updateTicketRequest,
                           @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to update ticket {} for user {}", updateTicketRequest, userId);
-        return this.ticketForUserService.updateForUser(updateTicketRequest, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to update ticket {} for user {}", updateTicketRequest, user.id());
+        return this.ticketForUserService.updateForUser(updateTicketRequest, user);
     }
 
     @PreAuthorize("hasAuthority('ticket:read')")
@@ -58,9 +58,9 @@ class TicketForUserGraphqlController {
                           @Size(max = 36, min = 36, message = "{ticket.get.orderId.Size.message}")
                           String id,
                           @AuthenticationPrincipal Jwt jwt) {
-        var userId = jwt.getSubject();
-        logger.info("Received request to query ticket {} for user {}", id, userId);
-        return this.ticketForUserService.getByIdForUser(id, userId);
+        var user = toUser(jwt);
+        logger.info("Received request to query ticket {} for user {}", id, user.id());
+        return this.ticketForUserService.getByIdForUser(id, user.id());
     }
 
     /**
@@ -73,9 +73,9 @@ class TicketForUserGraphqlController {
     Window<TicketResponse> ticketsForPurchase(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);
         long offset = getOffset(scrollSubrange);
-        var userId = jwt.getSubject();
-        logger.info("Received request to query tickets available for purchase with limit {}, offset {} for user {}", limit, offset, userId);
-        return this.ticketForUserService.getAllForPurchase(userId, limit, offset);
+        var user = toUser(jwt);
+        logger.info("Received request to query tickets available for purchase with limit {}, offset {} for user {}", limit, offset, user.id());
+        return this.ticketForUserService.getAllForPurchase(user.id(), limit, offset);
     }
 
     /**
@@ -86,9 +86,9 @@ class TicketForUserGraphqlController {
     Window<TicketResponse> tickets(ScrollSubrange scrollSubrange, @AuthenticationPrincipal Jwt jwt) {
         int limit = scrollSubrange.count().orElse(DEFAULT_LIMIT);
         long offset = getOffset(scrollSubrange);
-        var userId = jwt.getSubject();
-        logger.info("Received request to query tickets with limit {}, offset {} for user {}", limit, offset, userId);
-        return this.ticketForUserService.getAllForUser(userId, limit, offset);
+        var user = toUser(jwt);
+        logger.info("Received request to query tickets with limit {}, offset {} for user {}", limit, offset, user.id());
+        return this.ticketForUserService.getAllForUser(user.id(), limit, offset);
     }
 
     private long getOffset(ScrollSubrange scrollSubrange) {
@@ -96,5 +96,14 @@ class TicketForUserGraphqlController {
                 .filter(pos -> pos instanceof OffsetScrollPosition)
                 .map(pos -> ((OffsetScrollPosition) pos).getOffset())
                 .orElse(0L);
+    }
+
+    private User toUser(Jwt jwt) {
+        return new User(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                jwt.getClaimAsString("given_name"),
+                jwt.getClaimAsString("family_name")
+        );
     }
 }
