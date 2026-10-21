@@ -1,6 +1,6 @@
-package com.eventtickets.ticket;
+package com.eventtickets.messaging.ticket;
 
-import com.eventtickets.ticket.messaging.Event;
+import com.eventtickets.messaging.Event;
 
 import java.math.BigDecimal;
 import java.util.UUID;

@@ -1,8 +1,8 @@
 package com.eventtickets.order;
 
-import com.eventtickets.order.messaging.Event;
-import com.eventtickets.order.messaging.EventProducer;
-import com.eventtickets.order.messaging.Publisher;
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

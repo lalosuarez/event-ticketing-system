@@ -1,12 +1,14 @@
 package com.eventtickets.order;
 
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.order.OrderCancelledEvent;
+import com.eventtickets.messaging.order.OrderCreatedEvent;
 import com.eventtickets.order.exception.InvalidOrderException;
 import com.eventtickets.order.exception.InvalidTicketException;
 import com.eventtickets.order.exception.OrderException;
 import com.eventtickets.order.exception.OrderNotFoundException;
 import com.eventtickets.order.jdbc.*;
-import com.eventtickets.order.messaging.Event;
-import com.eventtickets.order.messaging.EventProducer;
 import com.eventtickets.order.ticket.TicketResponse;
 import com.eventtickets.order.ticket.jdbc.TicketEntity;
 import com.eventtickets.order.ticket.jdbc.TicketRepository;
@@ -163,7 +165,7 @@ class DefaultOrderForUserService implements OrderForUserService {
                 orderEntity.buyerId(),
                 ticketEntity.id(),
                 ticketEntity.price(),
-                orderEntity.status(),
+                orderEntity.status().name(),
                 orderEntity.expiresAt(),
                 orderEntity.version()
         );

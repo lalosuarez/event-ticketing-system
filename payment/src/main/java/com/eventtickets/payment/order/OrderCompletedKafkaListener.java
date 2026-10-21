@@ -1,6 +1,7 @@
 package com.eventtickets.payment.order;
 
-import com.eventtickets.payment.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.order.OrderCompletedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +22,7 @@ class OrderCompletedKafkaListener {
     }
 
     /**
-     * Attempts and backoff are very important when dealing with concurrency issues due to out of order events.
+     * Attempts and backoff are very important when dealing with concurrency issues due to out of order event.
      */
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "order.completed")

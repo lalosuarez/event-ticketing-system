@@ -1,6 +1,7 @@
 package com.eventtickets.ticket.order;
 
-import com.eventtickets.ticket.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.order.OrderCancelledEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +22,7 @@ class OrderCancelledKafkaListener {
     }
 
     /**
-     * Attempts and backoff are very important when dealing with concurrency issues due to out of order events.
+     * Attempts and backoff are very important when dealing with concurrency issues due to out of order event.
      */
     @RetryableTopic(attempts = "3", backOff = @BackOff(delay = 3000))
     @KafkaListener(topics = "order.cancelled")

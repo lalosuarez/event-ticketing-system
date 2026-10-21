@@ -1,9 +1,10 @@
 package com.eventtickets.ticket.order;
 
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.order.OrderCompletedEvent;
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.jdbc.TicketRepository;
 import com.eventtickets.ticket.jdbc.TicketStatus;
-import com.eventtickets.ticket.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

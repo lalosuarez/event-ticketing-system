@@ -1,4 +1,4 @@
-package com.eventtickets.ticket.messaging;
+package com.eventtickets.messaging;
 
 public interface EventProcessor<T> {
 

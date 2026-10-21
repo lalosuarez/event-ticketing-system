@@ -1,4 +1,4 @@
-package com.eventtickets.order.messaging;
+package com.eventtickets.messaging;
 
 public interface EventProducer<T> {
 

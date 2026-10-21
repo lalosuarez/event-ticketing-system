@@ -1,4 +1,4 @@
-package com.eventtickets.payment.messaging;
+package com.eventtickets.messaging;
 
 public interface Event {
 

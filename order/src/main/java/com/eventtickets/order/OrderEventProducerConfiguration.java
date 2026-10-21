@@ -1,5 +1,8 @@
 package com.eventtickets.order;
 
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.Publisher;
 import com.eventtickets.order.messaging.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

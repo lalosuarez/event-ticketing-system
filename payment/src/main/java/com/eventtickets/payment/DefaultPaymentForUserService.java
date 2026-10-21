@@ -1,18 +1,18 @@
 package com.eventtickets.payment;
 
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.payment.PaymentCreatedEvent;
 import com.eventtickets.payment.exception.InvalidOrderException;
 import com.eventtickets.payment.exception.PaymentException;
 import com.eventtickets.payment.jdbc.OrderEntity;
 import com.eventtickets.payment.jdbc.OrderRepository;
 import com.eventtickets.payment.jdbc.OrderStatus;
-import com.eventtickets.payment.messaging.Event;
-import com.eventtickets.payment.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;

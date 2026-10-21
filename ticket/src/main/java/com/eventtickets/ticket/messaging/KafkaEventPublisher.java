@@ -1,5 +1,7 @@
 package com.eventtickets.ticket.messaging;
 
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;

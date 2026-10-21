@@ -1,5 +1,6 @@
 package com.eventtickets.ticket.messaging;
 
+import com.eventtickets.messaging.Event;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;

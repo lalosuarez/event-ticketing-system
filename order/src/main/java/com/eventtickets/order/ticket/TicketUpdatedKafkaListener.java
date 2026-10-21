@@ -1,6 +1,7 @@
 package com.eventtickets.order.ticket;
 
-import com.eventtickets.order.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.ticket.TicketUpdatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +22,7 @@ class TicketUpdatedKafkaListener {
     }
 
     /**
-     * Attempts and backoff are very important when dealing with concurrency issues due to out of order events.
+     * Attempts and backoff are very important when dealing with concurrency issues due to out of order event.
      * For example: a TicketUpdatedEvent could potentially happen before TicketCreatedEvent, in that case it will
      * fail and retry after few seconds, by the second or third attempt the TicketCreatedEvent should have been
      * processed. Same with updating based on version.

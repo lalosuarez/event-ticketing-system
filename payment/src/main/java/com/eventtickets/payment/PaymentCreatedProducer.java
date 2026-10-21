@@ -1,8 +1,8 @@
 package com.eventtickets.payment;
 
-import com.eventtickets.payment.messaging.Event;
-import com.eventtickets.payment.messaging.EventProducer;
-import com.eventtickets.payment.messaging.Publisher;
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

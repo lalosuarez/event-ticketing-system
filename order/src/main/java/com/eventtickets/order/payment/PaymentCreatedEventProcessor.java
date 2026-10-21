@@ -1,13 +1,14 @@
 package com.eventtickets.order.payment;
 
-import com.eventtickets.order.OrderCompletedEvent;
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.order.OrderCompletedEvent;
+import com.eventtickets.messaging.payment.PaymentCreatedEvent;
 import com.eventtickets.order.exception.InvalidOrderException;
 import com.eventtickets.order.jdbc.OrderEntity;
 import com.eventtickets.order.jdbc.OrderForUserRepository;
 import com.eventtickets.order.jdbc.OrderStatus;
-import com.eventtickets.order.messaging.Event;
-import com.eventtickets.order.messaging.EventProcessor;
-import com.eventtickets.order.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

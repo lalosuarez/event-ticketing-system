@@ -1,8 +1,9 @@
 package com.eventtickets.order.ticket;
 
+import com.eventtickets.messaging.ticket.TicketCreatedEvent;
 import com.eventtickets.order.ticket.jdbc.TicketEntity;
 import com.eventtickets.order.ticket.jdbc.TicketRepository;
-import com.eventtickets.order.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

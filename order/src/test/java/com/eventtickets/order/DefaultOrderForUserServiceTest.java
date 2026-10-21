@@ -1,5 +1,7 @@
 package com.eventtickets.order;
 
+import com.eventtickets.messaging.order.OrderCancelledEvent;
+import com.eventtickets.messaging.order.OrderCreatedEvent;
 import com.eventtickets.order.exception.OrderNotFoundException;
 import com.eventtickets.order.jdbc.*;
 import com.eventtickets.order.ticket.jdbc.TicketEntity;
@@ -58,15 +60,25 @@ class DefaultOrderForUserServiceTest {
             var mockTicket = new TicketEntity(ticketId, "test title", new BigDecimal("100.00"),
                     "user-1", "user-first-name", "user-last-name");
             var mockSavedEntity = new OrderEntity(
-                    "user-123", ticketIdRef, OrderStatus.PENDING, OffsetDateTime.now().plusMinutes(15))
-                    .withId(expectedId);
+                    ticketIdRef,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    "buyerId",
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.PENDING
+            ).withId(expectedId);
 
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(mockSavedEntity);
             when(ticketRepository.findById(ticketIdRef.getId())).thenReturn(Optional.of(mockTicket));
             lenient().doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
 
             // Act
-            OrderResponse response = orderService.createForUser(request, "user-123");
+            OrderResponse response = orderService.createForUser(request, new User("user-123",
+                    "user@mail.com", "firstName", "lastName"));
 
             // Assert
             assertThat(response).isNotNull();
@@ -87,10 +99,30 @@ class DefaultOrderForUserServiceTest {
             AggregateReference<TicketEntity, UUID> ticketId1 = AggregateReference.to(UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e"));
             AggregateReference<TicketEntity, UUID> ticketId2 = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
-            OrderEntity entity1 = new OrderEntity(userId, ticketId1, OrderStatus.PENDING, OffsetDateTime.now())
-                    .withId(UUID.randomUUID());
-            OrderEntity entity2 = new OrderEntity(userId, ticketId2, OrderStatus.PENDING, OffsetDateTime.now())
-                    .withId(UUID.randomUUID());
+            OrderEntity entity1 = new OrderEntity(
+                    ticketId1,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    "buyerId",
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.PENDING
+            ).withId(UUID.randomUUID());
+            OrderEntity entity2 = new OrderEntity(
+                    ticketId2,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    "buyerId",
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.PENDING
+            ).withId(UUID.randomUUID());
 
             when(orderForUserRepository.findAllByUserId(userId, 2, 0L)).thenReturn(List.of(entity1, entity2));
 
@@ -110,9 +142,18 @@ class DefaultOrderForUserServiceTest {
             UUID orderId = UUID.randomUUID();
             AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
-            OrderEntity mockEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING,
-                    OffsetDateTime.now())
-                    .withId(orderId);
+            OrderEntity mockEntity = new OrderEntity(
+                    ticketId,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    userId,
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.PENDING
+            ).withId(orderId);
 
             when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(mockEntity);
 
@@ -151,10 +192,30 @@ class DefaultOrderForUserServiceTest {
             AggregateReference<TicketEntity, UUID> ticketId = AggregateReference.to(UUID.randomUUID());
             String userId = "user-123";
 
-            OrderEntity existingEntity = new OrderEntity(userId, ticketId, OrderStatus.PENDING, OffsetDateTime.now())
-                    .withId(orderId);
-            OrderEntity cancelledEntity = new OrderEntity(userId, ticketId, OrderStatus.CANCELLED, OffsetDateTime.now())
-                    .withId(orderId);
+            OrderEntity existingEntity = new OrderEntity(
+                    ticketId,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    "buyerId",
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.PENDING
+            ).withId(orderId);
+            OrderEntity cancelledEntity = new OrderEntity(
+                    ticketId,
+                    "title",
+                    new BigDecimal("0.99"),
+                    "selerId",
+                    "sellerFirstName",
+                    "sellerLastName",
+                    "buyerId",
+                    "buyerFirstName",
+                    "buyerLastName",
+                    OrderStatus.CANCELLED
+            ).withId(orderId);
 
             // Your code uses entity.withStatusAndUser(...), we stub that chain's output
             when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(existingEntity);

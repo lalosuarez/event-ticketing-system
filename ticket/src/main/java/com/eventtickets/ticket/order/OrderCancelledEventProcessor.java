@@ -1,13 +1,14 @@
 package com.eventtickets.ticket.order;
 
-import com.eventtickets.ticket.TicketUpdatedEvent;
+import com.eventtickets.messaging.Event;
+import com.eventtickets.messaging.EventProcessor;
+import com.eventtickets.messaging.EventProducer;
+import com.eventtickets.messaging.order.OrderCancelledEvent;
+import com.eventtickets.messaging.ticket.TicketUpdatedEvent;
 import com.eventtickets.ticket.exception.InvalidTicketException;
 import com.eventtickets.ticket.jdbc.TicketEntity;
 import com.eventtickets.ticket.jdbc.TicketRepository;
 import com.eventtickets.ticket.jdbc.TicketStatus;
-import com.eventtickets.ticket.messaging.Event;
-import com.eventtickets.ticket.messaging.EventProcessor;
-import com.eventtickets.ticket.messaging.EventProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
