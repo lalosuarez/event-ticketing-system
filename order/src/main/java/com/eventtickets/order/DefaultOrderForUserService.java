@@ -75,14 +75,14 @@ class DefaultOrderForUserService implements OrderForUserService {
 
     @Override
     public Window<OrderResponse> getAllForUser(String userId, Integer limit, Long offset) {
-        List<OrderEntity> items = this.orderForUserRepository.findAllByUserId(userId, limit, offset);
+        List<OrderEntity> items = this.orderForUserRepository.findAllByBuyerId(userId, limit, offset);
         Window<OrderEntity> results = Window.from(items, index -> ScrollPosition.offset(offset + index + 1));
         return results.map(this::toOrderResponse);
     }
 
     @Override
     public OrderResponse getByIdForUser(String id, String userId) {
-        var entity = this.orderForUserRepository.findOneByIdAndUserId(UUID.fromString(id), userId);
+        var entity = this.orderForUserRepository.findOneByIdAndBuyerId(UUID.fromString(id), userId);
         if (entity == null) {
             logger.error("Order id {} not found", id);
             throw new OrderNotFoundException("Order not found");
@@ -93,7 +93,7 @@ class DefaultOrderForUserService implements OrderForUserService {
     @Override
     @Transactional
     public OrderResponse cancelForUser(CancelOrderRequest cancelOrderRequest, String userId) {
-        var entity = this.orderForUserRepository.findOneByIdAndUserId(
+        var entity = this.orderForUserRepository.findOneByIdAndBuyerId(
                 UUID.fromString(cancelOrderRequest.orderId()), userId);
         if (entity == null) {
             logger.error("Order id {} not found", cancelOrderRequest.orderId());

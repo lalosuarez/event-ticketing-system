@@ -17,7 +17,6 @@ import org.springframework.data.domain.Window;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -124,7 +123,7 @@ class DefaultOrderForUserServiceTest {
                     OrderStatus.PENDING
             ).withId(UUID.randomUUID());
 
-            when(orderForUserRepository.findAllByUserId(userId, 2, 0L)).thenReturn(List.of(entity1, entity2));
+            when(orderForUserRepository.findAllByBuyerId(userId, 2, 0L)).thenReturn(List.of(entity1, entity2));
 
             // Act
             Window<OrderResponse> resultWindow = orderService.getAllForUser(userId, 2, 0L);
@@ -132,7 +131,7 @@ class DefaultOrderForUserServiceTest {
             // Assert
             assertThat(resultWindow).hasSize(2);
             assertThat(resultWindow.getContent().getFirst().ticket().id()).isEqualTo("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
-            verify(orderForUserRepository).findAllByUserId(userId, 2, 0L);
+            verify(orderForUserRepository).findAllByBuyerId(userId, 2, 0L);
         }
 
         @Test
@@ -155,7 +154,7 @@ class DefaultOrderForUserServiceTest {
                     OrderStatus.PENDING
             ).withId(orderId);
 
-            when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(mockEntity);
+            when(orderForUserRepository.findOneByIdAndBuyerId(orderId, userId)).thenReturn(mockEntity);
 
             // Act
             OrderResponse response = orderService.getByIdForUser(orderId.toString(), userId);
@@ -171,7 +170,7 @@ class DefaultOrderForUserServiceTest {
             // Arrange
             UUID orderId = UUID.randomUUID();
             String userId = "user-123";
-            when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(null);
+            when(orderForUserRepository.findOneByIdAndBuyerId(orderId, userId)).thenReturn(null);
 
             // Act & Assert
             assertThatThrownBy(() -> orderService.getByIdForUser(orderId.toString(), userId))
@@ -218,7 +217,7 @@ class DefaultOrderForUserServiceTest {
             ).withId(orderId);
 
             // Your code uses entity.withStatusAndUser(...), we stub that chain's output
-            when(orderForUserRepository.findOneByIdAndUserId(orderId, userId)).thenReturn(existingEntity);
+            when(orderForUserRepository.findOneByIdAndBuyerId(orderId, userId)).thenReturn(existingEntity);
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(cancelledEntity);
             lenient().doNothing().when(orderCancelledProducer).send(any(OrderCancelledEvent.class));
 

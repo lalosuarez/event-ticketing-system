@@ -11,6 +11,7 @@ public class KafkaTopicsConfiguration {
     public static final String ORDER_CREATED_TOPIC = "order.created";
     public static final String ORDER_CANCELLED_TOPIC = "order.cancelled";
     public static final String ORDER_COMPLETED_TOPIC = "order.completed";
+    public static final String ORDER_PAYMENT_FAILED_TOPIC = "order.paymentfailed";
 
     // Spring Boot picks up any NewTopic beans and hands them to a KafkaAdmin, which on startup asks the broker to create them.
     // The admin client uses an idempotent "create if not exists" call under the hood, so if greetings already exists,
@@ -34,6 +35,14 @@ public class KafkaTopicsConfiguration {
     @Bean
     NewTopic orderCompletedTopic() {
         return TopicBuilder.name(ORDER_COMPLETED_TOPIC)
+                .partitions(2)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    NewTopic orderPaymentFailedTopic() {
+        return TopicBuilder.name(ORDER_PAYMENT_FAILED_TOPIC)
                 .partitions(2)
                 .replicas(1)
                 .build();

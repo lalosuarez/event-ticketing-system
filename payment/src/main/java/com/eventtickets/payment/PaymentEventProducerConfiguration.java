@@ -18,8 +18,19 @@ class PaymentEventProducerConfiguration {
     }
 
     @Bean("paymentCreatedProducer")
-    EventProducer<Event> paymnetCreatedEventProducer(
+    EventProducer<Event> paymentCreatedProducer(
             @Qualifier("kafkaPaymentCreatedPublisher") Publisher<Event> publisher) {
         return new PaymentCreatedProducer(publisher);
+    }
+
+    @Bean("kafkaPaymentDeclinedPublisher")
+    Publisher<Event> kafkaPaymentDeclinedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.PAYMENT_DECLINED_TOPIC);
+    }
+
+    @Bean("paymentDeclinedProducer")
+    EventProducer<Event> paymentDeclinedProducer(
+            @Qualifier("kafkaPaymentDeclinedPublisher") Publisher<Event> publisher) {
+        return new PaymentDeclinedProducer(publisher);
     }
 }

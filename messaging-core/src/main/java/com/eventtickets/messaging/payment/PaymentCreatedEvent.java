@@ -12,6 +12,6 @@ public record PaymentCreatedEvent(UUID id,
 
     @Override
     public String getId() {
-        return this.id().toString();
+        return this.orderId().toString();
     }
 }

@@ -1,5 +1,7 @@
 package com.eventtickets.payment;
 
+import com.eventtickets.payment.exception.PaymentBrokerException;
+import com.eventtickets.payment.exception.PaymentDeclinedException;
 import com.eventtickets.payment.exception.PaymentException;
 import com.eventtickets.payment.jdbc.StripeCharge;
 import com.eventtickets.payment.jdbc.StripeChargeRepository;
@@ -32,9 +34,13 @@ class StripePaymentProcessor implements PaymentProcessor<Charge> {
             throw new PaymentException("A payment has already been processed for this order");
         }
 
-        // Simulates error
+        // Simulates payment broker down
         if ("tok_error".equals(stripePaymentRequest.token())) {
-            throw new PaymentException("Not able to processs stripe payment of $" + amount);
+            throw new PaymentBrokerException("Not able to processs stripe payment of $" + amount);
+        }
+        // Simulates payment error
+        if ("tok_declined".equals(stripePaymentRequest.token())) {
+            throw new PaymentDeclinedException("Payment of $" + amount + " declined");
         }
 
         var stripeId = UUID.randomUUID().toString(); // this comes from stripe sdk response, simulating for now

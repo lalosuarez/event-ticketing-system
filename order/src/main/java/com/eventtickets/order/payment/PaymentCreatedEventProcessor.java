@@ -31,7 +31,7 @@ class PaymentCreatedEventProcessor implements EventProcessor<PaymentCreatedEvent
     @Override
     @Transactional
     public void process(PaymentCreatedEvent paymentCreatedEvent) {
-        var entity = this.orderForUserRepository.findOneByIdAndUserId(
+        var entity = this.orderForUserRepository.findOneByIdAndBuyerId(
                 paymentCreatedEvent.orderId(), paymentCreatedEvent.userId());
         if (entity == null) {
             logger.error("Order not found {}", paymentCreatedEvent.orderId());

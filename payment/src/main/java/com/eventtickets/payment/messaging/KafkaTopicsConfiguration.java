@@ -9,6 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicsConfiguration {
 
     public static final String PAYMENT_CREATED_TOPIC = "payment.created";
+    public static final String PAYMENT_DECLINED_TOPIC = "payment.declined";
 
     // Spring Boot picks up any NewTopic beans and hands them to a KafkaAdmin, which on startup asks the broker to create them.
     // The admin client uses an idempotent "create if not exists" call under the hood, so if greetings already exists,
@@ -16,6 +17,14 @@ public class KafkaTopicsConfiguration {
     @Bean
     NewTopic paymentCreatedTopic() {
         return TopicBuilder.name(PAYMENT_CREATED_TOPIC)
+                .partitions(2)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    NewTopic paymentDeclinedTopic() {
+        return TopicBuilder.name(PAYMENT_DECLINED_TOPIC)
                 .partitions(2)
                 .replicas(1)
                 .build();

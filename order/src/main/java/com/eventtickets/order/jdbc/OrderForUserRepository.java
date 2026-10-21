@@ -10,18 +10,18 @@ public interface OrderForUserRepository extends ListCrudRepository<OrderEntity, 
     // For cursor-based pagination
     @Query("""
             SELECT o.* FROM ordering.order o
-            WHERE o.buyer_id = :userId
+            WHERE o.buyer_id = :buyerId
             ORDER BY o.created_at DESC
             LIMIT :limit OFFSET :offset
             """)
-    List<OrderEntity> findAllByUserId(String userId, Integer limit, Long offset);
+    List<OrderEntity> findAllByBuyerId(String buyerId, Integer limit, Long offset);
 
     @Query("""
             SELECT o.* FROM ordering.order o
-            WHERE o.id = :id AND buyer_id = :userId
+            WHERE o.id = :id AND buyer_id = :buyerId
             LIMIT 1
             """)
-    OrderEntity findOneByIdAndUserId(UUID id, String userId);
+    OrderEntity findOneByIdAndBuyerId(UUID id, String buyerId);
 
     @Query("""
             SELECT o.id FROM ordering.order o

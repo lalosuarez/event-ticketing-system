@@ -18,7 +18,7 @@ class PaymentCreatedProducer implements EventProducer<Event> {
 
     @Override
     public void send(Event event) {
-        logger.debug("Sending order created event: {}", event);
+        logger.debug("Sending payment created event: {}", event);
         publisher.publish(event);
     }
 }

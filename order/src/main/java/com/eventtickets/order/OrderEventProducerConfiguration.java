@@ -46,4 +46,15 @@ class OrderEventProducerConfiguration {
             @Qualifier("kafkaOrderCompletedPublisher") Publisher<Event> publisher) {
         return new OrderCompletedProducer(publisher);
     }
+
+    @Bean("kafkaOrderPaymentFailedPublisher")
+    Publisher<Event> kafkaOrderPaymentFailedPublisher(KafkaTemplate<String, Event> kafkaTemplate) {
+        return new KafkaEventPublisher(kafkaTemplate, KafkaTopicsConfiguration.ORDER_PAYMENT_FAILED_TOPIC);
+    }
+
+    @Bean("orderPaymentFailedProducer")
+    EventProducer<Event> orderPaymentFailedEventProducer(
+            @Qualifier("kafkaOrderPaymentFailedPublisher") Publisher<Event> publisher) {
+        return new OrderPaymentFailedProducer(publisher);
+    }
 }

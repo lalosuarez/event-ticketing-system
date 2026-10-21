@@ -33,4 +33,4 @@ CREATE INDEX order_idx ON ordering.order USING btree (buyer_id);
 -- If a ticket_id can only ever belong to one user in the entire system
 -- By having ticket_id first PostgreSQL can use this single index to optimize queries
 -- for ticket_id alone and queries using both columns.
-CREATE UNIQUE INDEX unique_ticket_user_idx ON ordering.order (ticket_id, buyer_id) WHERE status != 'CANCELLED';
+CREATE UNIQUE INDEX unique_ticket_user_idx ON ordering.order (ticket_id, buyer_id) WHERE status = 'COMPLETED';

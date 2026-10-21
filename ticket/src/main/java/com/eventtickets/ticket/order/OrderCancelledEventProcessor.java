@@ -40,7 +40,7 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
         // Removes the orderId because the ticket is no longer reserved
         var saved = this.ticketRepository.save(ticketEntity.with(null, TicketStatus.AVAILABLE));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));
-        logger.info("Ticket {} is no longer reserved", saved.id());
+        logger.info("Ticket {} is no longer reserved because order was cancelled", saved.id());
     }
 
     private TicketUpdatedEvent toTicketUpdatedEvent(TicketEntity ticketEntity) {
