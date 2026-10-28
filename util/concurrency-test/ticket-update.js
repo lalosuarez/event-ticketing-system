@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:8082/graphql';
 const HEADERS = {
   'Content-Type': 'application/json',
   'X-Gateway-Secret': 'mygatewaysecret',
-  'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJpTFVublVsVFJZaHpNZE5jS0ZBdXhrME9lcGdURVpBUks3aEJxQ0U2RDZJIn0.eyJleHAiOjE3OTI0NDE3MTIsImlhdCI6MTc5MjQ0MDgxMiwianRpIjoiM2JiNzRiYTEtN2I3My00MTQ2LWIyMjUtYWEyYmFiMjJlYzdmIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDkxL3JlYWxtcy9ldmVudC10aWNrZXRpbmciLCJhdWQiOlsiaHR0cDovL3RpY2tldCIsImh0dHA6Ly9nYXRld2F5Il0sInN1YiI6ImQ1MGJhYTAzLTQ0NjgtNDY3Ni1hNzk3LTZmNjFlMDUyNGU5OSIsInR5cCI6IkJlYXJlciIsImF6cCI6InNwYS13ZWItYXBwIiwic2Vzc2lvbl9zdGF0ZSI6ImRhM2E5ZTA0LWUzN2MtNDA0Ny04MGU5LTJmMjM4ZDc4YTM3NiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovL2xvY2FsaG9zdDo4MDgzIl0sInNjb3BlIjoib3BlbmlkIHRpY2tldDpyZWFkIGVtYWlsIGdhdGV3YXk6cmVhZCB0aWNrZXQ6ZGVsZXRlIHRpY2tldDp3cml0ZSBwcm9maWxlIiwic2lkIjoiZGEzYTllMDQtZTM3Yy00MDQ3LTgwZTktMmYyMzhkNzhhMzc2IiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyMiBTZWxsZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyMiIsImdpdmVuX25hbWUiOiJVc2VyMiIsImZhbWlseV9uYW1lIjoiU2VsbGVyIiwiZW1haWwiOiJ1c2VyMkB0ZXN0LmNvbSJ9.bZ5Ok1VsyxBA-VerbxxlUEunINXYpZ-TKf0cVXGbbeK0-8W-e_mpcvSWfnscwVnM7SZRVWkmRAMmYfh21iFdaUup5qpMM09if2cbhFuuqgKFgew53uG9b0DAIRV2MJJpxFr3uN5k2sA_xb5qpjAShsLxSmDsAsqBsEuHfprIr9rRvF40KlXB2a8OxuKyt6vzL7Yvk7cClm2hOu1A7WqJcCH6R6cdlDR1mKwF5frQV8RfyzXNogp-zRryDBdU8bTiJqeEL4qjl37hjISoSPs2od-14PK-8Tu-NzxnpN13s9h6221jbUN_dJcclZ9mQbhxEVYAu6aJwcfyAFzdiFIoVQ'
+  'Authorization': 'Bearer TOKEN_HERE'
 };
 
 const CREATE_MUTATION = `
@@ -41,7 +41,7 @@ async function runSequentialTest(i) {
       const createResponse = await axios.post(API_URL, {
         query: CREATE_MUTATION,
         variables: {
-          title: `Concert ${i}`
+          title: `Ticket ${i}`
         }
       }, { headers: HEADERS });
 
@@ -60,7 +60,7 @@ async function runSequentialTest(i) {
         query: UPDATE_MUTATION,
         variables: {
           id: `${itemId}`,
-          title: `Concert ${i}`,
+          title: `Ticket ${i}`,
           price: 10.00
         }
       }, { headers: HEADERS });
@@ -78,7 +78,7 @@ async function runSequentialTest(i) {
         query: UPDATE_MUTATION,
         variables: {
           id: `${itemId}`,
-          title: `Concert ${i}`,
+          title: `Ticket ${i}`,
           price: 15.00
         }
       }, { headers: HEADERS });

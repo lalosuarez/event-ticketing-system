@@ -5,7 +5,7 @@ CREATE TABLE ticketing.ticket
     id                UUID PRIMARY KEY       DEFAULT uuidv7(),
     title             VARCHAR(255)  NOT NULL,
     price             NUMERIC(9, 2) NOT NULL,
-    status            VARCHAR(50)   NOT NULL DEFAULT 'AVAILABLE', -- 'AVAILABLE', 'RESERVED', 'SOLD'
+    status            VARCHAR(50)   NOT NULL DEFAULT 'AVAILABLE', -- AVAILABLE, RESERVED, SOLD, etc.
     order_id          UUID,                                       -- To check for reserved tickets
     -- Seller Information
     seller_id         VARCHAR(50)   NOT NULL,
@@ -21,3 +21,5 @@ CREATE TABLE ticketing.ticket
 );
 
 CREATE INDEX ticket_idx ON ticketing.ticket USING btree (title);
+
+CREATE UNIQUE INDEX unique_ticket_idx ON ticketing.ticket (title, seller_id);

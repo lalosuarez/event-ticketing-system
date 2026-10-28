@@ -18,7 +18,7 @@ CREATE TABLE ordering.order
     buyer_first_name  VARCHAR(255)  NOT NULL,
     buyer_last_name   VARCHAR(255)  NOT NULL,
     -- Order State
-    status            VARCHAR(50)   NOT NULL DEFAULT 'PENDING',
+    status            VARCHAR(50)   NOT NULL DEFAULT 'PENDING', --PENDING, CANCELLED, COMPLETED, etc.
     expires_at        TIMESTAMPTZ   NOT NULL,
     -- Concurrency & Audit
     version           INTEGER       NOT NULL DEFAULT 0,
@@ -33,4 +33,5 @@ CREATE INDEX order_idx ON ordering.order USING btree (buyer_id);
 -- If a ticket_id can only ever belong to one user in the entire system
 -- By having ticket_id first PostgreSQL can use this single index to optimize queries
 -- for ticket_id alone and queries using both columns.
-CREATE UNIQUE INDEX unique_ticket_user_idx ON ordering.order (ticket_id, buyer_id) WHERE status = 'COMPLETED';
+CREATE UNIQUE INDEX unique_ticket_user_idx ON ordering.order (ticket_id, buyer_id)
+    WHERE status IN ('PENDING', 'COMPLETED');

@@ -2,9 +2,9 @@ package com.eventtickets.payment.order;
 
 import com.eventtickets.messaging.EventProcessor;
 import com.eventtickets.messaging.order.OrderCreatedEvent;
-import com.eventtickets.payment.jdbc.OrderEntity;
-import com.eventtickets.payment.jdbc.OrderRepository;
-import com.eventtickets.payment.jdbc.OrderStatus;
+import com.eventtickets.payment.order.jdbc.OrderEntity;
+import com.eventtickets.payment.order.jdbc.OrderRepository;
+import com.eventtickets.payment.order.jdbc.OrderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

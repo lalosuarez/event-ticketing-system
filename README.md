@@ -1,3 +1,18 @@
+
+### 3. Pre-Production Hardening Checklist
+
+| Domain | Security Requirement | Status |
+| --- | --- | --- |
+| **GraphQL** | Introspection disabled in production environments. | [ ] |
+| **GraphQL** | Maximum query depth and cost/complexity limits enforced. | [ ] |
+| **GraphQL** | Batching limited to prevent alias-based brute-force attacks. | [ ] |
+| **Keycloak/JWT** | Access tokens expired $\le 15$ minutes; refresh token rotation enabled. | [ ] |
+| **Keycloak/JWT** | Microservices enforce `aud` (audience) claim matching their scope. | [ ] |
+| **Keycloak/JWT** | RS256/ES256 asymmetric signing enforced; `none` algorithm rejected. | [ ] |
+| **Saga/Events** | Idempotency key tracking on all event consumers (prevents double processing). | [ ] |
+| **Saga/Events** | Message broker secured via mTLS and topic-level authorization. | [ ] |
+| **Ticketing** | Database-level atomic/pessimistic locking during seat reservations. | [ ] |
+
 # event-ticketing-system
 
 Microservices architecture with GraphQl and Saga pattern using choreography for comunication between services.

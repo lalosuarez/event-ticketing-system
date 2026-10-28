@@ -1,4 +1,4 @@
-package com.eventtickets.payment.jdbc;
+package com.eventtickets.payment.order.jdbc;
 
 public enum OrderStatus {
     PENDING,

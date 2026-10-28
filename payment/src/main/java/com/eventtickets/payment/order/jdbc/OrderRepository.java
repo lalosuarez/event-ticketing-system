@@ -1,4 +1,4 @@
-package com.eventtickets.payment.jdbc;
+package com.eventtickets.payment.order.jdbc;
 
 import org.springframework.data.repository.ListCrudRepository;
 

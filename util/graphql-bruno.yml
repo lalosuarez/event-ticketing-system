@@ -1,0 +1,527 @@
+opencollection: 1.0.0
+info:
+  name: Graphql
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+  environments:
+    - name: local
+      variables:
+        - name: token
+          value: eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJpTFVublVsVFJZaHpNZE5jS0ZBdXhrME9lcGdURVpBUks3aEJxQ0U2RDZJIn0.eyJleHAiOjE3OTMxOTcxMTEsImlhdCI6MTc5MzE5NjIxMSwianRpIjoiMzcyNmE4ODEtM2MzMy00YzJmLWI3MTItM2ZjODIxYTAyZjZhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDkxL3JlYWxtcy9ldmVudC10aWNrZXRpbmciLCJhdWQiOlsiaHR0cDovL3RpY2tldCIsImh0dHA6Ly9vcmRlciIsImh0dHA6Ly9wYXltZW50IiwiaHR0cDovL2dhdGV3YXkiXSwic3ViIjoiYWZjNWRiMmQtZjRmMi00ZTQ2LTk4MTktZDVlYjQwNDg0YzJmIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoic3BhLXdlYi1hcHAiLCJzZXNzaW9uX3N0YXRlIjoiY2M1ODBiYTQtMDUzOS00MmZkLWJkNjAtMzM0ZWJmMWE3MmE0IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjgwODMiXSwic2NvcGUiOiJvcGVuaWQgb3JkZXI6cmVhZCB0aWNrZXQ6ZGVsZXRlIHBheW1lbnQ6d3JpdGUgcGF5bWVudDpyZWFkIHRpY2tldDpyZWFkIGVtYWlsIG9yZGVyOndyaXRlIGdhdGV3YXk6cmVhZCB0aWNrZXQ6d3JpdGUgb3JkZXI6ZGVsZXRlIHByb2ZpbGUgcGF5bWVudDpkZWxldGUiLCJzaWQiOiJjYzU4MGJhNC0wNTM5LTQyZmQtYmQ2MC0zMzRlYmYxYTcyYTQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6IlVzZXI2IEJ1eWVyIGFuZCBTZWxsZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyNiIsImdpdmVuX25hbWUiOiJVc2VyNiIsImZhbWlseV9uYW1lIjoiQnV5ZXIgYW5kIFNlbGxlciIsImVtYWlsIjoidXNlcjZAdGVzdC5jb20ifQ.dgqklCDRIAZ1trzi6lniTigmJmfQO-JFdTMk4XXzYPop6oBOfHDwe9XouDBMluB60bY_JmoW9bOkOYkUP4_AJbcdo0SyrvF2_DNuh7WrlH4JPDYRiUzj4pQhaegPa1pdj68yunE9E2Dea0gB9eQfFr8AB4w6A28U5cLnZhWtg_gqJSu4iY-nbLLA8H4yxgarswhgdzHQcXUJpJcbNw4TN8oaX16LDklbDyjpd0rTe0irmIhH6Hoke8P49Q3NApIavnwDOgNPJe6vbPBYPbo9EYW_ppjcH0vLDcAdqCXC4wgw8YeNYAyh47IEN2JV4ec9C8SS9DPSDGlqV05YmDhl3w
+        - name: refresh_token
+          value: eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1MGQ5Yjc4My01Nzc1LTRiZDEtOTgyZC04N2E1N2I4ZWRkMDAifQ.eyJleHAiOjE3OTMxOTgwMTEsImlhdCI6MTc5MzE5NjIxMSwianRpIjoiZjA2ODE5YTAtOWE4Yi00MGYyLThmYzMtMjk2OWM5NmRjZWU1IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDkxL3JlYWxtcy9ldmVudC10aWNrZXRpbmciLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjkwOTEvcmVhbG1zL2V2ZW50LXRpY2tldGluZyIsInN1YiI6ImFmYzVkYjJkLWY0ZjItNGU0Ni05ODE5LWQ1ZWI0MDQ4NGMyZiIsInR5cCI6IlJlZnJlc2giLCJhenAiOiJzcGEtd2ViLWFwcCIsInNlc3Npb25fc3RhdGUiOiJjYzU4MGJhNC0wNTM5LTQyZmQtYmQ2MC0zMzRlYmYxYTcyYTQiLCJzY29wZSI6Im9wZW5pZCBvcmRlcjpyZWFkIHRpY2tldDpkZWxldGUgcGF5bWVudDp3cml0ZSBwYXltZW50OnJlYWQgdGlja2V0OnJlYWQgZW1haWwgb3JkZXI6d3JpdGUgZ2F0ZXdheTpyZWFkIHRpY2tldDp3cml0ZSBvcmRlcjpkZWxldGUgcHJvZmlsZSBwYXltZW50OmRlbGV0ZSIsInNpZCI6ImNjNTgwYmE0LTA1MzktNDJmZC1iZDYwLTMzNGViZjFhNzJhNCJ9.adirBByyEYKkln6cjthPXcQ8DRinjvxPcU3445nUYmanG7CgqE5oFOYXL535iSWXJapQ1BdXrzj52SIT4DE2nw
+        - name: gateway_secret
+          value: mygatewaysecret
+        - name: ticket_url
+          value: http://localhost:8082
+        - name: ticket_url_gateway
+          value: http://localhost:8084/ticket
+        - name: order_url
+          value: http://localhost:8081
+        - name: ticket_url_gateway
+          value: http://localhost:8084/ticket
+        - name: payment_url
+          value: http://localhost:8083
+        - name: payment_url_gateway
+          value: http://localhost:8084/payment
+items:
+  - info:
+      name: Login
+      type: http
+      seq: 1
+    http:
+      method: POST
+      url: http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token
+      headers:
+        - name: Content-Type
+          value: application/x-www-form-urlencoded
+      body:
+        type: multipart-form
+        data:
+          - name: grant_type
+            type: text
+            value: password
+          - name: username
+            type: text
+            value: user6
+          - name: password
+            type: text
+            value: secret
+          - name: scope
+            type: text
+            value: openid ticket:write order:write payment:write gateway:read
+          - name: client_id
+            type: text
+            value: spa-web-app
+      auth: inherit
+    runtime:
+      scripts:
+        - type: after-response
+          code: |-
+            console.log("post response...");
+            
+            var inspect = res.getBody();
+            console.log(inspect);
+            for (var i in inspect){
+            //   console.log(i + "=" + inspect[i]);
+            }
+            console.log("post response...done");
+            
+            var token = res.getBody().access_token;
+            console.log("access_token = " + token);
+            
+            var refreshToken = res.getBody().refresh_token;
+            console.log("refresh_token = " + refreshToken);
+            
+            
+            bru.setEnvVar("token", token);
+            bru.setEnvVar("refresh_token", refreshToken);
+            
+              // var data = JSON.parse(responseBody);
+              // postman.setEnvironmentVariable("token", data.access_token);
+              // postman.setEnvironmentVariable("refresh_token", data.refresh_token);
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: Refresh Token
+      type: http
+      seq: 3
+    http:
+      method: POST
+      url: http://localhost:9091/realms/event-ticketing/protocol/openid-connect/token
+      body:
+        type: form-urlencoded
+        data:
+          - name: client_id
+            value: spa-web-app
+          - name: refresh_token
+            value: '{{refresh_token}}'
+          - name: grant_type
+            value: refresh_token
+      auth: inherit
+    runtime:
+      scripts:
+        - type: after-response
+          code: "var data = res.getBody();\r\nbru.setEnvVar(\"token\", data.access_token);\r\nbru.setEnvVar(\"refresh_token\", data.refresh_token);"
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: true
+  - info:
+      name: Order
+      type: folder
+      seq: 4
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: CancelOrder
+          type: graphql
+          seq: 2
+        graphql:
+          url: '{{order_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-User-Timezone
+              value: America/Chicago
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              mutation CancelOrder {
+                cancel(cancelOrderRequest: { orderId: "01a182d0-d31b-7769-badc-4bd4cebd47c8" }) {
+                  id
+                  status
+                  ticket {
+                    price
+                    title
+                  }
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: CreateOrder
+          type: graphql
+          seq: 1
+        graphql:
+          url: '{{order_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-User-Timezone
+              value: America/Chicago
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              mutation CreateOrder {
+                create(createOrderRequest: { ticketId: "01a1605b-3dc7-70c4-8e5f-9b9fba749fcc" }) {
+                  id
+                  totalAmount
+                  status
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: GetOrderById
+          type: graphql
+          seq: 4
+        graphql:
+          url: '{{order_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-User-Timezone
+              value: America/Chicago
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              query GetOrderById {
+                order(id: "01a15a7a-2ad0-7948-9acd-1ae4a12cc341") {
+                  id
+                  ticketId
+                  ticketTitle
+                  quantity
+                  totalAmount
+                  ticket {
+                    id
+                    price
+                    title
+                  }
+                  sellerId
+                  buyerId
+                  buyerFirstName
+                  buyerLastName
+                  status
+                  createdAtUtc
+                  createdAtLocal
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: GetOrders
+          type: graphql
+          seq: 3
+        graphql:
+          url: '{{order_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-User-Timezone
+              value: America/Chicago
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              query GetOrders {
+                orders(first: 10) {
+                  edges {
+                    node {
+                      id
+                      ticketId
+                      ticketTitle
+                      quantity
+                      totalAmount
+                      sellerId
+                      buyerId
+                      buyerFirstName
+                      buyerLastName
+                      status
+                      createdAtUtc
+                      createdAtLocal
+                    }
+                  }
+                  pageInfo {
+                    hasNextPage
+                    hasPreviousPage
+                    startCursor
+                    endCursor
+                  }
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+  - info:
+      name: Ticket
+      type: folder
+      seq: 2
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: CreateTicket
+          type: graphql
+          seq: 1
+        graphql:
+          url: '{{ticket_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              mutation CreateTicket {
+                create(createTicketRequest: { title: "Concert 3", price: "300.00" }) {
+                  id
+                  price
+                  title
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: GetTicketById
+          type: graphql
+          seq: 4
+        graphql:
+          url: '{{ticket_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              query GetTicketById {
+                ticket(id: "01a15aac-67fb-727a-adf9-ada4de26ac40") {
+                  price
+                  title
+                  sellerId
+                  sellerFirstName
+                  sellerLastName
+                  status
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: GetTickets
+          type: graphql
+          seq: 5
+        graphql:
+          url: '{{ticket_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: "query GetTickets {\n  tickets(first: 10) {\n    edges {\n      cursor\n      node {\n        id\n        title\n        price\n\t\t\t\tstatus\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n      hasPreviousPage\n      startCursor\n    }\n  }\n}"
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: GetTicketsForPurchase
+          type: graphql
+          seq: 3
+        graphql:
+          url: '{{ticket_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |
+              query GetTicketsForPurchase {
+                ticketsForPurchase(first: 10) {
+                  edges {
+                    cursor
+                    node {
+                      id
+                      title
+                      price
+                      sellerId,
+                      sellerFirstName
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                    hasPreviousPage
+                    startCursor
+                  }
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+      - info:
+          name: UpdateTicket
+          type: graphql
+          seq: 2
+        graphql:
+          url: '{{ticket_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              mutation UpdateTicket {
+                update(
+                  updateTicketRequest: {
+                    id: "01a15f0a-f38f-755d-99cf-4f16e80e6491"
+                    title: "Concert CIS REF 2"
+                    price: "15.99"
+                  }
+                ) {
+                  id
+                  price
+                  title
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+  - info:
+      name: Payment
+      type: folder
+      seq: 5
+    request:
+      auth: inherit
+    items:
+      - info:
+          name: StripePayment
+          type: graphql
+          seq: 1
+        graphql:
+          url: '{{payment_url}}/graphql'
+          method: POST
+          headers:
+            - name: Accept
+              value: application/json, multipart/mixed
+            - name: X-User-Timezone
+              value: America/Chicago
+            - name: X-Gateway-Secret
+              value: '{{gateway_secret}}'
+            - name: Authorization
+              value: Bearer {{token}}
+          body:
+            query: |-
+              mutation StripePayment {
+                stripePayment(
+                  stripePaymentRequest: {
+                    orderId: "01a1605d-f296-72e0-8888-65151540676d"
+                    token: "tok_1234"
+                  }
+                ) {
+                  status
+                }
+              }
+            variables: ''
+          auth: inherit
+        settings:
+          encodeUrl: true
+          timeout: 0
+          followRedirects: true
+          maxRedirects: 5
+          forwardAuthorizationHeader: false
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-10-28T14:23:06.441Z'
+    exportedUsing: Bruno

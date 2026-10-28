@@ -1,4 +1,4 @@
-package com.eventtickets.payment.jdbc;
+package com.eventtickets.payment.order.jdbc;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
