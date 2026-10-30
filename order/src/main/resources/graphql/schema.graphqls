@@ -19,6 +19,8 @@ type Mutation {
 
 # Input values to create an order
 input CreateOrderRequest {
+    # Unique UUID or client-generated token to ensure this order creation is executed at most once.
+    clientMutationId: String!
     ticketId: ID!
 }
 

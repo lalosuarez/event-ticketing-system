@@ -21,6 +21,8 @@ import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.kafka.KafkaException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,15 +34,18 @@ class DefaultOrderForUserService implements OrderForUserService {
     private final TicketRepository ticketRepository;
     private final EventProducer<Event> orderCreatedProducer;
     private final EventProducer<Event> orderCancelledProducer;
+    private final IdempotentService<CreateOrderRequest, User, OrderResponse> idempotentService;
 
     DefaultOrderForUserService(OrderForUserRepository orderForUserRepository,
                                TicketRepository ticketRepository,
                                @Qualifier("orderCreatedProducer") EventProducer<Event> orderCreatedProducer,
-                               @Qualifier("orderCancelledProducer") EventProducer<Event> orderCancelledProducer) {
+                               @Qualifier("orderCancelledProducer") EventProducer<Event> orderCancelledProducer,
+                               IdempotentService<CreateOrderRequest, User, OrderResponse> idempotentService) {
         this.orderForUserRepository = orderForUserRepository;
         this.ticketRepository = ticketRepository;
         this.orderCreatedProducer = orderCreatedProducer;
         this.orderCancelledProducer = orderCancelledProducer;
+        this.idempotentService = idempotentService;
     }
 
     @Override
@@ -53,7 +58,7 @@ class DefaultOrderForUserService implements OrderForUserService {
         // until Thread-A's transaction finishes (either commits or rolls back).
         var ticketEntity = this.ticketRepository.findByIdForPurchase(ticketId, user.id())
                 .orElseThrow(() -> {
-                    logger.error("Ticket {} not found", ticketId);
+                    logger.error("Ticket {} not found for user {}", ticketId, user.id());
                     return new InvalidTicketException();
                 });
         // Checking if ticket is not reserved.
@@ -63,14 +68,38 @@ class DefaultOrderForUserService implements OrderForUserService {
             logger.error("Ticket id {} has been reserved or sold", ticketEntity.id());
             throw new InvalidTicketException("Ticket has been reserved or sold");
         }
-        var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, ticketEntity, user));
+
         try {
-            this.orderCreatedProducer.send(toOrderCreatedEvent(orderEntity, ticketEntity));
+            // Idempotency check starts
+            var existingOrderResponse = this.idempotentService.inProgress(createOrderRequest, user);
+            if (existingOrderResponse != null) {
+                logger.warn("Order already created, returning value from cache {}", existingOrderResponse);
+                return existingOrderResponse;
+            }
+
+            var orderEntity = this.orderForUserRepository.save(toOrderEntity(createOrderRequest, ticketEntity, user));
+            var response = toOrderResponse(orderEntity);
+
+            // Idempotency check completed
+            this.idempotentService.complete(createOrderRequest, user, response);
+
+            // Safe post-commit messaging
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    orderCreatedProducer.send(toOrderCreatedEvent(orderEntity, ticketEntity));
+                }
+            });
+            return response;
         } catch (KafkaException ex) {
-            logger.error("Could not send order created event", ex);
+            logger.error("Could not send order created event. Rollback changes", ex);
+            throw new OrderException("Could not create order, try again later");
+        } catch (Exception ex) {
+            logger.error("Could not create order. Rollback changes", ex);
+            // Something went wrong so ddempotency check is mark as failed
+            this.idempotentService.fail(createOrderRequest, user);
             throw new OrderException("Could not create order, try again later");
         }
-        return toOrderResponse(orderEntity);
     }
 
     @Override
@@ -84,7 +113,7 @@ class DefaultOrderForUserService implements OrderForUserService {
     public OrderResponse getByIdForUser(String id, String userId) {
         var entity = this.orderForUserRepository.findOneByIdAndBuyerId(UUID.fromString(id), userId);
         if (entity == null) {
-            logger.error("Order id {} not found", id);
+            logger.error("Order id {} not found for user {}", id, userId);
             throw new OrderNotFoundException("Order not found");
         }
         return toOrderResponse(entity);
@@ -96,7 +125,7 @@ class DefaultOrderForUserService implements OrderForUserService {
         var entity = this.orderForUserRepository.findOneByIdAndBuyerId(
                 UUID.fromString(cancelOrderRequest.orderId()), userId);
         if (entity == null) {
-            logger.error("Order id {} not found", cancelOrderRequest.orderId());
+            logger.error("Order id {} not found for user {}", cancelOrderRequest.orderId(), userId);
             throw new InvalidOrderException("Invalid order");
         }
         if (OrderStatus.CANCELLED.equals(entity.status())) {

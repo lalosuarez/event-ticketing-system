@@ -6,15 +6,14 @@ import com.eventtickets.order.exception.OrderNotFoundException;
 import com.eventtickets.order.jdbc.*;
 import com.eventtickets.order.ticket.jdbc.TicketEntity;
 import com.eventtickets.order.ticket.jdbc.TicketRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Window;
 import org.springframework.data.jdbc.core.mapping.AggregateReference;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,10 +38,25 @@ class DefaultOrderForUserServiceTest {
     private DefaultOrderForUserService orderService;
 
     @Mock
+    private IdempotentService<CreateOrderRequest, User, OrderResponse> idempotentService;
+
+    @Mock
     private OrderCreatedProducer orderCreatedProducer;
 
     @Mock
     private OrderCancelledProducer orderCancelledProducer;
+
+    @BeforeEach
+    void setUp() {
+        TransactionSynchronizationManager.initSynchronization();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
 
     @Nested
     @DisplayName("Create Order Tests")
@@ -52,7 +66,9 @@ class DefaultOrderForUserServiceTest {
         @DisplayName("Should successfully map request and save new order as PENDING")
         void createForUser_ValidRequest_ReturnsOrderResponse() {
             // Arrange
-            var request = new CreateOrderRequest("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
+            var request = new CreateOrderRequest("01a18dc4-049b-73c3-9dda-7b3b9a1930a6",
+                    "01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
+            var user = new User("user-123", "user@mail.com", "firstName", "lastName");
             var expectedId = UUID.randomUUID();
             var ticketId = UUID.fromString("01a0f256-bf4e-7043-b9bc-7f45f9f8e79e");
             AggregateReference<TicketEntity, UUID> ticketIdRef = AggregateReference.to(ticketId);
@@ -65,19 +81,19 @@ class DefaultOrderForUserServiceTest {
                     "selerId",
                     "sellerFirstName",
                     "sellerLastName",
-                    "buyerId",
+                    "user-123",
                     "buyerFirstName",
                     "buyerLastName",
                     OrderStatus.PENDING
             ).withId(expectedId);
 
+            when(idempotentService.inProgress(request, user)).thenReturn(null);
             when(orderForUserRepository.save(any(OrderEntity.class))).thenReturn(mockSavedEntity);
-            when(ticketRepository.findById(ticketIdRef.getId())).thenReturn(Optional.of(mockTicket));
+            when(ticketRepository.findByIdForPurchase(ticketId, "user-123")).thenReturn(Optional.of(mockTicket));
             lenient().doNothing().when(orderCreatedProducer).send(any(OrderCreatedEvent.class));
 
             // Act
-            OrderResponse response = orderService.createForUser(request, new User("user-123",
-                    "user@mail.com", "firstName", "lastName"));
+            OrderResponse response = orderService.createForUser(request, user);
 
             // Assert
             assertThat(response).isNotNull();
