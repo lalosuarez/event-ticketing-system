@@ -24,6 +24,13 @@ class OrderPaymentFailedEventProcessor implements EventProcessor<OrderPaymentFai
         var orderEntity = this.orderRepository.findById(orderPaymentFailedEvent.id())
                 .orElseThrow(() -> new InvalidOrderException("Order not found " + orderPaymentFailedEvent.id()));
 
+        // To fail an order the status must be PENDING
+        // If this is not the case, the listener may be be getting events out of order
+        if (!OrderStatus.PENDING.equals(orderEntity.status())) {
+            logger.error("Invalid order status, cannot mark order with payment failed {}", orderEntity);
+            throw new InvalidOrderException("Invalid order status " + orderEntity.status());
+        }
+
         if (OrderStatus.PAYMENT_FALIED.equals(orderEntity.status())) {
             logger.warn("Event already processed {}", orderPaymentFailedEvent);
             return;
@@ -32,6 +39,6 @@ class OrderPaymentFailedEventProcessor implements EventProcessor<OrderPaymentFai
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.orderRepository.save(orderEntity.with(OrderStatus.PAYMENT_FALIED,
                 orderPaymentFailedEvent.version() - 1));
-        logger.info("Order updated in DB {}", saved);
+        logger.info("Order failed because of payment failed {}", saved);
     }
 }

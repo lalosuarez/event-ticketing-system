@@ -28,7 +28,7 @@ class OrderCreatedEventProcessor implements EventProcessor<OrderCreatedEvent> {
         }
         var entity = toOrderEntity(orderCreatedEvent);
         var saved = this.orderRepository.save(entity);
-        logger.info("Order created in DB {}", saved);
+        logger.info("Order created {}", saved);
     }
 
     private OrderEntity toOrderEntity(OrderCreatedEvent orderCreatedEvent) {

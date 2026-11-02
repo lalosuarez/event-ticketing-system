@@ -27,7 +27,7 @@ class TicketCreatedEventProcessor implements EventProcessor<TicketCreatedEvent> 
         }
         TicketEntity ticketEntity = toTicketEntity(ticketCreatedEvent);
         var saved = this.ticketRepository.save(ticketEntity);
-        logger.info("Ticket created in DB {}", saved);
+        logger.info("Ticket created {}", saved);
     }
 
     private TicketEntity toTicketEntity(TicketCreatedEvent ticketCreatedEvent) {

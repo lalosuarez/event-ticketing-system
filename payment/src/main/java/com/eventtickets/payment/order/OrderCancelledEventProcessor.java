@@ -24,6 +24,13 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
         var orderEntity = this.orderRepository.findById(orderCancelledEvent.id())
                 .orElseThrow(() -> new InvalidOrderException("Order not found " + orderCancelledEvent.id()));
 
+        // To cancel an order the status must be PENDING
+        // If this is not the case, the listener may be be getting events out of order
+        if (!OrderStatus.PENDING.equals(orderEntity.status())) {
+            logger.error("Invalid order status, cannot cancel order {}", orderEntity);
+            throw new InvalidOrderException("Invalid order status " + orderEntity.status());
+        }
+
         if (OrderStatus.CANCELLED.equals(orderEntity.status())) {
             logger.warn("Event already processed {}", orderCancelledEvent);
             return;
@@ -32,6 +39,6 @@ class OrderCancelledEventProcessor implements EventProcessor<OrderCancelledEvent
         // Decrease version by 1 so the new record matches the old record version for optimistic lock
         var saved = this.orderRepository.save(orderEntity.with(OrderStatus.CANCELLED,
                 orderCancelledEvent.version() - 1));
-        logger.info("Order updated in DB {}", saved);
+        logger.info("Order has been cancelled {}", saved);
     }
 }

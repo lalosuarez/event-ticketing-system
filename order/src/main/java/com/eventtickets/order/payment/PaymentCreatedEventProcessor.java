@@ -37,13 +37,22 @@ class PaymentCreatedEventProcessor implements EventProcessor<PaymentCreatedEvent
             logger.error("Order not found {}", paymentCreatedEvent.orderId());
             throw new InvalidOrderException("Invalid order");
         }
+
+        // To complete an order the status must be PENDING
+        // If this is not the case, the listener may be be getting events out of order
+        if (!OrderStatus.PENDING.equals(entity.status())) {
+            logger.error("Invalid order status, cannot complete order {}", entity);
+            throw new InvalidOrderException("Invalid order status " + entity.status());
+        }
+
         if (OrderStatus.COMPLETED.equals(entity.status())) {
             logger.warn("Event already processed {}", paymentCreatedEvent);
             return;
         }
+
         var saved = this.orderForUserRepository.save(entity.with(OrderStatus.COMPLETED));
         this.orderCompletedProducer.send(toOrderCompletedEvent(saved));
-        logger.info("Order {} has been completed", saved);
+        logger.info("Order has been completed {}", saved);
     }
 
     private OrderCompletedEvent toOrderCompletedEvent(OrderEntity orderEntity) {

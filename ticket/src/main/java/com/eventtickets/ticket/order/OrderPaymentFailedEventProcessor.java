@@ -34,10 +34,19 @@ class OrderPaymentFailedEventProcessor implements EventProcessor<OrderPaymentFai
     public void process(OrderPaymentFailedEvent orderPaymentFailedEvent) {
         var ticketEntity = this.ticketRepository.findById(orderPaymentFailedEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderPaymentFailedEvent.ticketId()));
-        if (ticketEntity.orderId() == null) {
+
+        // To release a ticket the status must be RESERVED
+        // If this is not the case, the listener may be be getting events out of order
+        if (!TicketStatus.RESERVED.equals(ticketEntity.status())) {
+            logger.error("Invalid ticket status, cannot release ticket {}", ticketEntity);
+            throw new InvalidTicketException("Invalid ticket status " + ticketEntity.status());
+        }
+
+        if (TicketStatus.AVAILABLE.equals(ticketEntity.status()) && ticketEntity.orderId() == null) {
             logger.warn("Event already processed {}", orderPaymentFailedEvent);
             return;
         }
+
         // Removes the orderId because the ticket is no longer reserved
         var saved = this.ticketRepository.save(ticketEntity.with(null, TicketStatus.AVAILABLE));
         this.ticketUpdatedProducer.send(toTicketUpdatedEvent(saved));

@@ -24,6 +24,13 @@ class OrderCompletedEventProcessor implements EventProcessor<OrderCompletedEvent
         var ticketEntity = this.ticketRepository.findById(orderCompletedEvent.ticketId())
                 .orElseThrow(() -> new InvalidTicketException("Ticket not found " + orderCompletedEvent.ticketId()));
 
+        // To mark ticket as sold the status must be RESERVED
+        // If this is not the case, the listener may be be getting events out of order
+        if (!TicketStatus.RESERVED.equals(ticketEntity.status())) {
+            logger.error("Invalid ticket status, cannot mark as sold {}", ticketEntity);
+            throw new InvalidTicketException("Invalid ticket status " + ticketEntity.status());
+        }
+
         if (TicketStatus.SOLD.equals(ticketEntity.status())) {
             logger.warn("Event already processed {}", orderCompletedEvent);
             return;

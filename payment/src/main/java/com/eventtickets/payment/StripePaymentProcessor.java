@@ -46,7 +46,7 @@ class StripePaymentProcessor implements PaymentProcessor<Charge> {
         var stripeId = UUID.randomUUID().toString(); // this comes from stripe sdk response, simulating for now
         logger.info("Payment sent to stripe {}", stripeId);
         var saved = this.stripeChargeRepository.save(toStripeChargeEntity(stripePaymentRequest, stripeId, userId));
-        logger.info("Stripe charge saved in DB {}", saved);
+        logger.info("Stripe charge saved {}", saved);
         return saved;
     }
 

@@ -99,10 +99,16 @@ docker exec -i kafka /opt/kafka/bin/kafka-console-consumer.sh \
   --property print.partition=true \
   --property print.offset=true
 
-printf '__TypeId__:com.eventtickets.ticket.TicketCreatedEvent\t{"id":"01a144c7-2d68-7c26-9ae0-0a7a5ecfb1c4","title":"Concert 1","price":100.00,"userId":"d50baa03-4468-4676-a797-6f61e0524e99","version":0}\n' | \
+printf '__TypeId__:com.eventtickets.messaging.ticket.TicketCreatedEvent\t{"id":"01a144c7-2d68-7c26-9ae0-0a7a5ecfb1c4","title":"Concert 1","price":100.00,"userId":"d50baa03-4468-4676-a797-6f61e0524e99","version":0}\n' | \
   docker exec -i kafka /opt/kafka/bin/kafka-console-producer.sh \
   --bootstrap-server localhost:9092 \
   --topic ticket.created \
+  --reader-property parse.headers=true
+  
+printf '__TypeId__:com.eventtickets.messaging.order.OrderCreatedEvent\t{"id":"01a19dfa-5fdc-7c51-93c9-e811bedefd4a","userId":"2035867d-c112-47db-8069-e8041449f204","ticketId":"01a19dc1-1592-78f2-87db-6bf18ec18638","ticketPrice":7.00,"status":"PENDING","expiresAt":"2026-11-02T14:51:33.876235-06:00","version":0}\n' | \
+  docker exec -i kafka /opt/kafka/bin/kafka-console-producer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic order.created \
   --reader-property parse.headers=true
 
 docker exec -i kafka /opt/kafka/bin/kafka-consumer-groups.sh \
@@ -112,6 +118,21 @@ docker exec -i kafka /opt/kafka/bin/kafka-consumer-groups.sh \
   --reset-offsets \
   --to-offset 7 \
   --execute
+
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh \
+  --bootstrap-server localhost:9092 \
+  --list
+
+docker exec -it kafka /opt/kafka/bin/kafka-topics.sh \
+  --bootstrap-server localhost:9092 \
+  --delete \
+  --topic order.cancelled.DLT
+
+docker exec -it kafka /opt/kafka/bin/kafka-console-consumer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic order.cancelled-dlt \
+  --from-beginning
+
 ```
 
 You can manually start each service from terminal or IDE, or run skaffold.

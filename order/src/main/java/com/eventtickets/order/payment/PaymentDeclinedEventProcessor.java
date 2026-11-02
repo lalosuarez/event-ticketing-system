@@ -37,13 +37,22 @@ class PaymentDeclinedEventProcessor implements EventProcessor<PaymentDeclinedEve
             logger.error("Order not found {}", paymentCreatedEvent.orderId());
             throw new InvalidOrderException("Invalid order");
         }
+
+        // To fail an order the status must be PENDING
+        // If this is not the case, the listener may be be getting events out of order
+        if (!OrderStatus.PENDING.equals(entity.status())) {
+            logger.error("Invalid order status, cannot mark order with payment failed {}", entity);
+            throw new InvalidOrderException("Invalid order status " + entity.status());
+        }
+
         if (OrderStatus.PAYMENT_FALIED.equals(entity.status())) {
             logger.warn("Event already processed {}", paymentCreatedEvent);
             return;
         }
+
         var saved = this.orderForUserRepository.save(entity.with(OrderStatus.PAYMENT_FALIED));
         this.orderPaymentFailedProducer.send(toOrderPaymentFailedEvent(saved));
-        logger.error("Order {} not completed because of payment declined", saved);
+        logger.error("Order not completed because of payment failed {}", saved);
     }
 
     private OrderPaymentFailedEvent toOrderPaymentFailedEvent(OrderEntity orderEntity) {

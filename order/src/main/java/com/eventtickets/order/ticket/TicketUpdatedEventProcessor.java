@@ -34,7 +34,7 @@ class TicketUpdatedEventProcessor implements EventProcessor<TicketUpdatedEvent> 
                         ticketUpdatedEvent.version() - 1
                 )
         );
-        logger.info("Ticket updated in DB {}", saved);
+        logger.info("Ticket updated {}", saved);
     }
 
     private TicketEntity toTicketEntity(TicketUpdatedEvent ticketUpdatedEvent) {
