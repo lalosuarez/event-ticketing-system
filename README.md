@@ -42,6 +42,7 @@ Overall Architecture:
 ## Ports reference
 
 - 54321 - Postgres
+- 5173 - web app
 - 9091 - keycloak
 - 9092 - kafka
 - 8081 - orders
